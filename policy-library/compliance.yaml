@@ -1,0 +1,13 @@
+version: "1.0"
+metadata:
+  project_name: "Token Sale Compliance"
+  description: "Compliance rules for token sale"
+  created_date: "2024-01-15"
+
+modules:
+  token_sale:
+    start_date: "2024-03-01"
+    end_date: "2024-06-01"
+    max_cap_usd: 5000000
+    kyc_threshold_usd: 1000
+    blocklist: ["US", "CN", "IR"]

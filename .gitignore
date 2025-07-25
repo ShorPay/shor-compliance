@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Test outputs
+test-results.log
+solana-test-results.log
+coverage/
+.nyc_output/
+
+# Hardhat files
+cache/
+artifacts/
+contracts/
+
+# Audit bundles
+audit-bundle.zip
+*.zip
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# OS files
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# Generated documentation
+docs/
+
+# Local configuration
+config.local.json
+local.settings.json
