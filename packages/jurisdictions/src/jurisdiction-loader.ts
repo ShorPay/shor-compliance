@@ -28,9 +28,9 @@ export class JurisdictionLoader {
   constructor() {
     // Look for jurisdictions in the policy-library folder
     this.templatesDir = path.join(process.cwd(), 'policy-library', 'jurisdictions');
-    // Fallback to src/data if policy-library doesn't exist
+    // Fallback to built-in templates if policy-library doesn't exist  
     if (!fs.existsSync(this.templatesDir)) {
-      this.templatesDir = path.join(__dirname, '..', 'data', 'jurisdictions');
+      this.templatesDir = path.join(__dirname, '..', 'templates', 'jurisdictions');
     }
     this.loadTemplates();
   }
