@@ -1,28 +1,64 @@
 # Shor Compliance
 
-Ship compliant crypto projects in minutes, not months. Update your compliance rules as regulations evolve with a single config change. 
+Open-source compliance-as-code for crypto projects. Write your token sale rules in YAML, generate Solidity contracts that enforce them on-chain, plus lawyer-friendly PDFs – all in one command.
+
+```yaml
+# compliance.yaml → Guardrail.sol + policy.pdf + audit.json
+token_sale:
+  max_cap_usd: 500000
+  kyc_threshold_usd: 1000
+  blocklist: ["US", "CN"]
+```
 
 **⚠️ LEGAL DISCLAIMER: This framework provides compliance guardrails based on common patterns. Users must conduct their own legal research and consult with qualified legal counsel before using these tools for any token sale or blockchain project.**
 
-## Why Shor?
+## The Problem
 
-**🚀 Launch Faster**: Generate compliant smart contracts and documentation in seconds instead of waiting weeks for legal reviews. Make the process faster end to end
+Crypto compliance is a nightmare. Regulations change weekly, vary by jurisdiction, and one mistake can kill your project. Most teams either:
+- Overpay lawyers ($50-100k for basic setup)
+- Risk non-compliance and hope for the best
+- Spend months building custom solutions
 
-**🔄 Stay Compliant**: When regulations change, update your YAML config and regenerate - no need to rewrite contracts or hire developers.
+## Our Solution
 
-**💰 Save Money**: Stop paying $50-100k for basic compliance setup. Use battle-tested templates and customize as needed.
+Treat compliance like infrastructure – declare once, deploy everywhere.
 
-**🛡️ Reduce Risk**: Enforce compliance rules on-chain automatically. No more manual checks or human errors.
+Write your rules in YAML → Generate smart contracts that enforce them → Deploy with confidence
+
+**What you get:**
+- ✅ Smart contracts that automatically reject non-compliant transactions
+- ✅ Jurisdiction-specific templates (US SEC, EU MiCA, Singapore MAS)
+- ✅ Direct KYC integration (no middleman servers)
+- ✅ Immutable on-chain audit trail
+- ✅ Update compliance with one config change when regulations shift
 
 ## How It Works
 
-The Shor Compliance Framework streamlines compliance through:
+### 1. Declare once in `compliance.yaml`
+```yaml
+modules:
+  token_sale:
+    start_date: "2025-02-01"
+    end_date: "2025-03-01"
+    max_cap_usd: 500000
+    kyc_threshold_usd: 1000
+    
+  geographic_restrictions:
+    blocklist: ["US", "CN", "IR"]
+```
 
-- 🏛️ **Pre-built jurisdiction templates** (US SEC, EU MiCA, Singapore MAS)
-- 📜 **Smart contract generation** with built-in compliance rules
-- 🔍 **KYC/AML integration** with leading providers
-- 📄 **Policy document generation** with enforcement indicators
-- 🔗 **On-chain verification** through oracle integration
+### 2. Compile with one command
+```bash
+shor compile --blockchain ethereum --with-oracle
+```
+
+This generates:
+- **Guardrail.sol** – Smart contract that reverts non-compliant transactions
+- **policy.pdf** – Lawyer-readable compliance documentation  
+- **audit.json** – Manifest with rules, timestamp, and bytecode hash
+
+### 3. Deploy & forget
+Your smart contract enforces rules automatically on-chain. When regulations change, update your YAML and redeploy – no code changes needed.
 
 ## Packages
 
@@ -44,39 +80,32 @@ This monorepo contains the following packages:
 
 ## Quick Start
 
-### Using the CLI
+### 30-second setup
 
 ```bash
-# Install globally
+# Install
 npm install -g @shor/cli
 
-# Initialize a new compliance project with interactive mode
-shor init --interactive
+# Initialize (creates compliance.yaml)
+shor init
 
-# Or initialize with specific jurisdiction
+# Compile (generates contracts + docs)
+shor compile
+
+# That's it! Check the build/ folder for your contracts
+```
+
+### Real-world example
+
+```bash
+# Start with US token sale template
 shor init --jurisdiction us-sec
 
-# List available jurisdictions
-shor init --list
+# Compile for Ethereum with KYC oracle
+shor compile --blockchain ethereum --with-oracle
 
-# Compile compliance rules
-shor compile --blockchain solana --with-oracle --interactive
-
-# Lint compliance configuration
-shor lint
-
-# Export audit bundle
+# Export everything for lawyers/auditors
 shor export-audit --format zip
-
-# Show all available options
-shor options
-
-# Configure API settings
-shor config set-api-key <your-key>
-shor config show
-
-# Verify with KYC integration
-shor verify init --address <address>
 ```
 
 ### Using the SDK
@@ -118,6 +147,13 @@ const verifier = compliance.createVerifier();
 const verification = await verifier.createVerification('wallet-address');
 ```
 
+## Why Now?
+
+- **SEC providing clearer guidance** on token classifications
+- **Every L2 needs compliant on/off ramps** for growth
+- **DeFi protocols seeking institutional capital** require compliance
+- **Stablecoin regulations** emerging globally
+
 ## Key Features
 
 ### 🔐 Smart Contract Generation
@@ -150,12 +186,14 @@ Automatically generate comprehensive policy documents with:
 - Jurisdiction-specific legal references
 - Enforcement type indicators throughout documentation
 
-### 🌍 Multi-Jurisdiction Support
+### 🌍 Multi-Jurisdiction Templates
 
-Pre-built templates for major jurisdictions:
-- **US SEC** - Regulation D (506c), Form D filings, accredited investor rules
-- **EU MiCA** - Crypto-asset regulations, whitepaper requirements
-- **Singapore MAS** - Payment Services Act, DPT regulations
+Community-maintained starting points for common jurisdictions:
+- **US** - Templates based on common Reg D patterns
+- **EU** - MiCA-aware configurations
+- **Singapore** - MAS-focused templates
+
+*Note: These are starting templates, not legal advice. Always verify with local counsel.*
 
 ### 🔍 KYC/AML Integration
 
