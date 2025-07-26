@@ -1,12 +1,22 @@
-# Shor Compliance Framework
+# Shor Compliance
 
-A comprehensive blockchain compliance framework providing both SDK and CLI tools for implementing regulatory compliance in token sales and DeFi applications.
+Ship compliant crypto projects in minutes, not months. Update your compliance rules as regulations evolve with a single config change. 
 
-**⚠️ LEGAL DISCLAIMER: This framework is currently under review by legal professionals. Users must conduct their own legal research and consult with qualified legal counsel before using these tools for any token sale or blockchain project.**
+**⚠️ LEGAL DISCLAIMER: This framework provides compliance guardrails based on common patterns. Users must conduct their own legal research and consult with qualified legal counsel before using these tools for any token sale or blockchain project.**
 
-## Overview
+## Why Shor?
 
-The Shor Compliance Framework helps blockchain projects implement regulatory compliance through:
+**🚀 Launch Faster**: Generate compliant smart contracts and documentation in seconds instead of waiting weeks for legal reviews. Make the process faster end to end
+
+**🔄 Stay Compliant**: When regulations change, update your YAML config and regenerate - no need to rewrite contracts or hire developers.
+
+**💰 Save Money**: Stop paying $50-100k for basic compliance setup. Use battle-tested templates and customize as needed.
+
+**🛡️ Reduce Risk**: Enforce compliance rules on-chain automatically. No more manual checks or human errors.
+
+## How It Works
+
+The Shor Compliance Framework streamlines compliance through:
 
 - 🏛️ **Pre-built jurisdiction templates** (US SEC, EU MiCA, Singapore MAS)
 - 📜 **Smart contract generation** with built-in compliance rules
@@ -225,6 +235,7 @@ shor options --sdk --compile --jurisdictions --kyc
 shor verify init --address 0x123... --provider sumsub
 ```
 
+
 ## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details.
@@ -266,12 +277,16 @@ packages/sdk/src/providers/
 
 Apache License 2.0 - See [LICENSE](./LICENSE) for details
 
+
+## 🚀 Future Vision
+
+See our full [Future Vision](./FUTURE_VISION.md) for detailed roadmap and architecture.
+
 ## Support
 
-- 📖 [Documentation](https://docs.shor.xyz)
-- 💬 [Discord Community](https://discord.gg/shor)
-- 🐛 [Issue Tracker](https://github.com/shor-protocol/compliance-framework/issues)
-- 📧 [Email Support](mailto:support@shor.xyz)
+- 📖 [Documentation](https://docs.shorpay.com)
+- 🐛 [Issue Tracker](https://github.com/shorpay/compliance/issues)
+- 📧 [Email Support](mailto:founders@shorpay.com)
 
 ## Disclaimer
 
@@ -279,4 +294,4 @@ This software is provided "as is" without warranty of any kind. Users are respon
 
 ---
 
-Built with ❤️ by the [Shor Protocol](https://shor.xyz) team
+Built with ❤️ by [Shor](https://shorpay.com) team
