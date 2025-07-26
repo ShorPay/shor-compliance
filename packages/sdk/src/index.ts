@@ -32,7 +32,7 @@ export class ShorCompliance {
   
   constructor(config: ShorComplianceConfig = {}) {
     this.config = {
-      blockchain: 'ethereum',
+      blockchain: 'solana',
       environment: 'development',
       ...config
     };
@@ -125,6 +125,81 @@ export class ShorCompliance {
     return this.kycProvider;
   }
   
+  /**
+   * Get available blockchain options
+   */
+  getAvailableBlockchains(): Blockchain[] {
+    return ['ethereum', 'solana'];
+  }
+  
+  /**
+   * Get supported environments
+   */
+  getSupportedEnvironments(): Environment[] {
+    return ['development', 'production'];
+  }
+  
+  /**
+   * Get available KYC providers
+   */
+  getAvailableKYCProviders(): string[] {
+    return KYCProviderFactory.getAvailableProviders();
+  }
+  
+  /**
+   * Get compile options schema with descriptions
+   */
+  getCompileOptionsSchema(): {
+    blockchain: { type: string; options: Blockchain[]; default: Blockchain; description: string };
+    generatorOptions: { type: string; description: string };
+  } {
+    return {
+      blockchain: {
+        type: 'string',
+        options: this.getAvailableBlockchains(),
+        default: this.config.blockchain!,
+        description: 'Target blockchain for smart contract generation'
+      },
+      generatorOptions: {
+        type: 'object',
+        description: 'Additional options passed to the code generator'
+      }
+    };
+  }
+  
+  /**
+   * Get SDK configuration schema with descriptions
+   */
+  getConfigSchema(): {
+    jurisdiction: { type: string; description: string };
+    blockchain: { type: string; options: Blockchain[]; default: Blockchain; description: string };
+    environment: { type: string; options: Environment[]; default: Environment; description: string };
+    kycProvider: { type: string; description: string };
+  } {
+    return {
+      jurisdiction: {
+        type: 'string',
+        description: 'Jurisdiction template to load (e.g., "us-sec", "eu-mica")'
+      },
+      blockchain: {
+        type: 'string',
+        options: this.getAvailableBlockchains(),
+        default: this.config.blockchain!,
+        description: 'Default blockchain for compilation'
+      },
+      environment: {
+        type: 'string',
+        options: this.getSupportedEnvironments(),
+        default: this.config.environment!,
+        description: 'Target environment for generation'
+      },
+      kycProvider: {
+        type: 'object',
+        description: 'KYC provider configuration with name and config properties'
+      }
+    };
+  }
+
   /**
    * Register a custom generator
    */

@@ -31,4 +31,11 @@ export class KYCProviderFactory {
   static list(): string[] {
     return Array.from(this.providers.keys());
   }
+  
+  /**
+   * Get available providers (alias for list)
+   */
+  static getAvailableProviders(): string[] {
+    return this.list();
+  }
 }

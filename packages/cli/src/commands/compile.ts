@@ -3,6 +3,7 @@ import path from 'path';
 import chalk from 'chalk';
 import yaml from 'js-yaml';
 import PDFDocument from 'pdfkit';
+import inquirer from 'inquirer';
 import { generateSolidityContract } from '../utils/solidity-generator';
 import { generateSolidityContractV2 } from '../utils/solidity-generator-v2';
 import { generateSolanaProgram } from '../utils/solana-generator';
@@ -12,9 +13,62 @@ interface CompileOptions {
   env: string;
   blockchain: string;
   withOracle?: boolean;
+  interactive?: boolean;
 }
 
 export async function compileCommand(options: CompileOptions): Promise<void> {
+  // Interactive mode
+  if (options.interactive) {
+    console.log(chalk.blue('🔧 Interactive compilation mode\n'));
+    
+    const answers = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'blockchain',
+        message: 'Select target blockchain:',
+        choices: [
+          { name: 'Solana (Default)', value: 'solana' },
+          { name: 'Ethereum', value: 'ethereum' }
+        ],
+        default: 'solana'
+      },
+      {
+        type: 'list',
+        name: 'env',
+        message: 'Select target environment:',
+        choices: [
+          { name: 'Production (Default)', value: 'production' },
+          { name: 'Development', value: 'development' }
+        ],
+        default: 'production'
+      },
+      {
+        type: 'confirm',
+        name: 'withOracle',
+        message: 'Include KYC oracle integration for on-chain verification?',
+        default: false,
+        when: (answers) => answers.blockchain === 'ethereum'
+      },
+      {
+        type: 'confirm',
+        name: 'generatePdf',
+        message: 'Generate PDF version of policy document?',
+        default: true
+      }
+    ]);
+    
+    options.blockchain = answers.blockchain;
+    options.env = answers.env;
+    options.withOracle = answers.withOracle || false;
+    
+    console.log(chalk.gray('\n📋 Configuration Summary:'));
+    console.log(chalk.gray(`  Blockchain: ${options.blockchain}`));
+    console.log(chalk.gray(`  Environment: ${options.env}`));
+    console.log(chalk.gray(`  Oracle Integration: ${options.withOracle ? 'Yes' : 'No'}`));
+    console.log(chalk.gray(`  Generate PDF: ${answers.generatePdf ? 'Yes' : 'No'}`));
+    console.log();
+  }
+  
   console.log(chalk.blue(`📦 Compiling compliance rules for ${options.blockchain} blockchain, environment: ${options.env}`));
 
   const policyLibDir = path.join(process.cwd(), 'policy-library');

@@ -8,6 +8,7 @@ import { compileCommand } from './commands/compile';
 import { exportAuditCommand } from './commands/export-audit';
 import { configCommand } from './commands/config';
 import { verifyCommand } from './commands/verify';
+import { optionsCommand } from './commands/options';
 
 const program = new Command();
 
@@ -27,8 +28,9 @@ program
   .command('compile')
   .description('Generate smart contract, policy document, and audit manifest')
   .option('--env <environment>', 'Target environment', 'production')
-  .option('--blockchain <blockchain>', 'Target blockchain (ethereum|solana)', 'ethereum')
+  .option('--blockchain <blockchain>', 'Target blockchain (ethereum|solana)', 'solana')
   .option('--with-oracle', 'Include Sumsub oracle integration for on-chain verification')
+  .option('-i, --interactive', 'Interactive mode to configure compilation options')
   .action(compileCommand);
 
 program
@@ -40,6 +42,7 @@ program
 // Add config commands directly to program
 configCommand.commands.forEach(cmd => program.addCommand(cmd));
 program.addCommand(verifyCommand);
+program.addCommand(optionsCommand);
 
 program.parse(process.argv);
 
