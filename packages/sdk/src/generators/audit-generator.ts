@@ -41,7 +41,7 @@ export class AuditDocumentGenerator implements DocumentGenerator {
       if (tokenSale.max_cap_usd) count++;
       if (tokenSale.start_date && tokenSale.end_date) count++;
       if (tokenSale.blocklist) count++;
-      if (tokenSale.min_investment_usd || tokenSale.max_investment_usd) count++;
+      if (tokenSale.min_investment_usd) count++;
     }
     return count;
   }
@@ -73,14 +73,14 @@ export class AuditDocumentGenerator implements DocumentGenerator {
       if (tokenSale.accredited_only) checks.push('Accredited investor verification');
       if (tokenSale.blocklist) checks.push('Jurisdiction blocklist');
       if (tokenSale.min_investment_usd) checks.push('Minimum investment amount');
-      if (tokenSale.max_investment_usd) checks.push('Maximum investment amount');
+      // max_investment_usd not defined in interface
       if (tokenSale.lockup_days) checks.push('Token lockup period');
     }
     
     const verification = spec.modules?.investor_verification;
     if (verification) {
       if (verification.bad_actor_check_required) checks.push('Bad actor disqualification');
-      if (verification.aml_check_required) checks.push('AML screening');
+      // aml_check_required not defined in InvestorVerificationModule interface
     }
     
     return checks;

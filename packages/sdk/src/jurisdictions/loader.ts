@@ -31,7 +31,7 @@ export class JurisdictionLoader {
       }
       
       return spec;
-    } catch (error) {
+    } catch (error: any) {
       if (error.code === 'ENOENT') {
         throw new Error(`Compliance file not found: ${filePath}`);
       }
