@@ -12,7 +12,7 @@ verifyV2Command
   .description('Configure KYC provider')
   .requiredOption('-p, --provider <provider>', 'KYC provider (sumsub)')
   .action(async (options) => {
-    const factory = kycProviderFactory;
+    const factory = KYCProviderFactory;
     const availableProviders = factory.getAvailableProviders();
     
     if (!availableProviders.includes(options.provider)) {
@@ -27,7 +27,7 @@ verifyV2Command
     // Interactive configuration would go here
     // For now, show what's needed
     console.log(chalk.yellow(`\nTo complete configuration, add these to your environment or config:`));
-    requirements.forEach(req => {
+    requirements.forEach((req: any) => {
       console.log(chalk.gray(`  ${req.toUpperCase()}: your_${req}_value`));
     });
   });
@@ -37,12 +37,12 @@ verifyV2Command
   .command('providers')
   .description('List available KYC providers')
   .action(async () => {
-    const factory = kycProviderFactory;
+    const factory = KYCProviderFactory;
     const providers = factory.getAvailableProviders();
     
     console.log(chalk.bold('Available KYC Providers:\n'));
     
-    providers.forEach(provider => {
+    providers.forEach((provider: any) => {
       const requirements = factory.getProviderRequirements(provider);
       console.log(chalk.blue(`  ${provider}`));
       console.log(chalk.gray(`    Configuration: ${requirements.join(', ')}`));
@@ -59,7 +59,7 @@ verifyV2Command
   .option('-l, --level <level>', 'Verification level name', 'basic-kyc')
   .action(async (options) => {
     try {
-      const provider = await kycProviderFactory.initialize();
+      const provider = KYCProviderFactory.create('sumsub', {});
       
       console.log(chalk.gray(`Initializing verification with ${provider.name} provider...`));
 
@@ -97,7 +97,7 @@ verifyV2Command
   .requiredOption('-a, --address <address>', 'Address to check')
   .action(async (options) => {
     try {
-      const provider = await kycProviderFactory.initialize();
+      const provider = KYCProviderFactory.create('sumsub', {});
       const status = await provider.getVerificationStatus(options.address);
 
       console.log(chalk.bold('Verification Status:'));
@@ -131,7 +131,7 @@ verifyV2Command
   .option('-c, --contract <address>', 'Filter by contract address')
   .action(async (options) => {
     try {
-      const provider = await kycProviderFactory.initialize();
+      const provider = KYCProviderFactory.create('sumsub', {});
       const verifications = await provider.listVerifications(options.contract);
 
       if (verifications.length === 0) {
@@ -141,7 +141,7 @@ verifyV2Command
 
       console.log(chalk.bold(`Found ${verifications.length} verification(s) from ${provider.name}:\n`));
       
-      verifications.forEach((v) => {
+      verifications.forEach((v: any) => {
         console.log(chalk.gray('Address:'), v.address);
         console.log(chalk.gray('Status:'), getStatusColor(v.status));
         console.log(chalk.gray('Type:'), v.verificationType);
@@ -162,7 +162,7 @@ verifyV2Command
   .requiredOption('-a, --address <address>', 'Address to get proof for')
   .action(async (options) => {
     try {
-      const provider = await kycProviderFactory.initialize();
+      const provider = KYCProviderFactory.create('sumsub', {});
       const proof = await provider.getVerificationProof(options.address);
 
       console.log(chalk.bold('Verification Proof:'));

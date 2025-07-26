@@ -5,6 +5,9 @@
 export enum VerificationStatus {
   PENDING = 'pending',
   IN_PROGRESS = 'in_progress',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+  NEEDS_REVIEW = 'needs_review',
   COMPLETED = 'completed',
   FAILED = 'failed',
   EXPIRED = 'expired'
@@ -77,5 +80,9 @@ export abstract class KYCProvider {
   abstract checkStatus(verificationId: string): Promise<VerificationResult>;
   abstract generateProof(verificationId: string): Promise<VerificationProof>;
   abstract getName(): string;
+  
+  get name(): string {
+    return this.getName();
+  }
   abstract isConfigured(): boolean;
 }
