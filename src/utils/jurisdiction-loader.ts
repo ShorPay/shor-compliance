@@ -90,6 +90,17 @@ export class JurisdictionLoader {
       this.applyCustomizations(spec, customizations);
     }
     
+    // Add required default fields if they don't exist
+    if (!spec.metadata.project_name) {
+      spec.metadata.project_name = 'Token Sale Compliance Project';
+    }
+    if (!spec.metadata.description) {
+      spec.metadata.description = 'Compliance rules for token sale';
+    }
+    if (!spec.metadata.created_date) {
+      spec.metadata.created_date = new Date().toISOString().split('T')[0];
+    }
+    
     // Add generation metadata
     spec.metadata.generated_from = jurisdictionId;
     spec.metadata.generated_at = new Date().toISOString();
