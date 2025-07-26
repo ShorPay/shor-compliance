@@ -99,9 +99,10 @@ shor compile
 
 ```bash
 # Start with US token sale template
-shor init --jurisdiction us-sec
+shor init --jurisdiction us-token-sale
 
 # Compile for Ethereum with KYC oracle
+# Note: Requires SUMSUB_APP_TOKEN and SUMSUB_SECRET_KEY in .env
 shor compile --blockchain ethereum --with-oracle
 
 # Export everything for lawyers/auditors
@@ -142,9 +143,15 @@ const result = await compliance.compile(spec, {
   generatorOptions: { withOracle: true }
 });
 
-// Create KYC verifier
-const verifier = compliance.createVerifier();
-const verification = await verifier.createVerification('wallet-address');
+// Create KYC provider
+const provider = compliance.createProvider('sumsub', {
+  appToken: process.env.SUMSUB_APP_TOKEN,
+  secretKey: process.env.SUMSUB_SECRET_KEY
+});
+const verification = await provider.initVerification({
+  address: 'wallet-address',
+  verificationType: 'INDIVIDUAL'
+});
 ```
 
 ## Why Now?
