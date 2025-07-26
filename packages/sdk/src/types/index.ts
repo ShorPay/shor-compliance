@@ -1,2 +1,2 @@
 export * from './compliance';
-export * from './kyc';
+export { KYCProvider, KYCProviderConfig, VerificationStatus, VerificationType } from '@shor/providers';

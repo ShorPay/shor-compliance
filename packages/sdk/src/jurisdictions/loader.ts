@@ -15,10 +15,6 @@ export class JurisdictionLoader {
     this.templatesPath = templatesPath || path.join(__dirname, '../../templates');
   }
   
-  async load(jurisdiction: string): Promise<ComplianceSpec> {
-    // Placeholder implementation
-    throw new Error('JurisdictionLoader.load not implemented yet');
-  }
   
   async loadFromFile(filePath: string): Promise<ComplianceSpec> {
     try {
@@ -53,5 +49,18 @@ export class JurisdictionLoader {
   async list(): Promise<string[]> {
     // Placeholder implementation
     return ['us-sec', 'eu-mica', 'singapore-mas'];
+  }
+  
+  async load(jurisdiction: string): Promise<ComplianceSpec> {
+    // Use the JurisdictionLoader from the jurisdictions package
+    const { JurisdictionLoader: JurisdictionsPackageLoader } = await import('@shor/jurisdictions');
+    const loader = new JurisdictionsPackageLoader();
+    
+    const template = loader.getTemplate(jurisdiction);
+    if (!template) {
+      throw new Error(`Jurisdiction template not found: ${jurisdiction}`);
+    }
+    
+    return loader.generateComplianceSpec(jurisdiction);
   }
 }

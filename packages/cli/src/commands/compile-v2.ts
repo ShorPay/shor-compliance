@@ -3,9 +3,7 @@ import path from 'path';
 import chalk from 'chalk';
 import yaml from 'js-yaml';
 import PDFDocument from 'pdfkit';
-import { generateProviderAgnosticContract } from '@shor/generators/src/solidity-generator-v3';
-import { generateSolanaProgram } from '@shor/generators/src/solana-generator';
-import { generatePolicyDocument } from '@shor/generators/src/policy-generator';
+import { generateProviderAgnosticContract, generateSolanaProgram, generatePolicyDocument } from '@shor/generators';
 import { KYCProviderFactory } from '@shor/providers';
 
 interface CompileOptions {

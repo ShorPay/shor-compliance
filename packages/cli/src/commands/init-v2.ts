@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
 import yaml from 'js-yaml';
-import { JurisdictionLoader } from '@shor/jurisdictions/src/jurisdiction-loader';
+import { JurisdictionLoader } from '@shor/jurisdictions';
 import inquirer from 'inquirer';
 
 export const initV2Command = new Command('init')
@@ -30,7 +30,7 @@ export const initV2Command = new Command('init')
     // Interactive mode
     if (options.interactive && !options.jurisdiction) {
       const jurisdictions = loader.getAvailableJurisdictions();
-      const choices = jurisdictions.map(j => ({
+      const choices = jurisdictions.map((j: any) => ({
         name: `${j.name} - ${j.type} (${j.framework})`,
         value: j.id
       }));
@@ -123,7 +123,7 @@ export const initV2Command = new Command('init')
       }
       
       const jurisdictionInfo = loader.getAvailableJurisdictions()
-        .find(j => j.id === options.jurisdiction);
+        .find((j: any) => j.id === options.jurisdiction);
       
       if (jurisdictionInfo) {
         const readme = `# ${jurisdictionInfo.name} Compliance

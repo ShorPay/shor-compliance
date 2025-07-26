@@ -1,6 +1,6 @@
 import { BaseContractGenerator } from './base';
 import { ComplianceSpec, Blockchain } from '../types';
-import { generateProviderAgnosticContract } from '@shor/generators/src/solidity-generator-v3';
+import { generateProviderAgnosticContract } from '@shor/generators';
 
 /**
  * Ethereum smart contract generator

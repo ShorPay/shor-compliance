@@ -44,6 +44,7 @@ export interface TokenSaleModule {
   aml_required?: boolean;
   max_cap_usd?: number;
   min_investment_usd?: number;
+  max_investment_usd?: number;
   self_attestation_threshold_usd?: number;
   start_date?: string;
   end_date?: string;
@@ -62,6 +63,7 @@ export interface InvestorVerificationModule {
   accredited_verification_required?: boolean;
   acceptable_verification_methods?: string[];
   bad_actor_check_required?: boolean;
+  aml_check_required?: boolean;
 }
 
 export interface SecuritiesExemptionsModule {

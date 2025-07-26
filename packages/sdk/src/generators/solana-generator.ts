@@ -1,6 +1,6 @@
 import { BaseContractGenerator } from './base';
 import { ComplianceSpec, Blockchain } from '../types';
-import { generateSolanaProgram } from '@shor/generators/src/solana-generator';
+import { generateSolanaProgram } from '@shor/generators';
 
 /**
  * Solana program generator

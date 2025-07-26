@@ -4,10 +4,7 @@ import chalk from 'chalk';
 import yaml from 'js-yaml';
 import PDFDocument from 'pdfkit';
 import inquirer from 'inquirer';
-import { generateSolidityContract } from '@shor/generators/src/solidity-generator';
-import { generateSolidityContractV2 } from '@shor/generators/src/solidity-generator-v2';
-import { generateSolanaProgram } from '@shor/generators/src/solana-generator';
-import { generatePolicyDocument } from '@shor/generators/src/policy-generator';
+import { generateSolidityContract, generateSolidityContractV2, generateSolanaProgram, generatePolicyDocument } from '@shor/generators';
 
 interface CompileOptions {
   env: string;

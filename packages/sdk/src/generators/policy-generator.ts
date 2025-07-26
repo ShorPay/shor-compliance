@@ -1,6 +1,6 @@
 import { DocumentGenerator } from './base';
 import { ComplianceSpec } from '../types';
-import { generatePolicyDocument } from '@shor/generators/src/policy-generator';
+import { generatePolicyDocument } from '@shor/generators';
 
 /**
  * Policy document generator

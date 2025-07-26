@@ -19,6 +19,8 @@
   "dependencies": {
     "@shor/compliance-sdk": "^1.0.0",
     "@shor/providers": "^1.0.0",
+    "@shor/jurisdictions": "^1.0.0",
+    "@shor/generators": "^1.0.0",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "archiver": "^7.0.1",

@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import { createShorCompliance } from '@shor/compliance-sdk';
-import { JurisdictionLoader } from '@shor/jurisdictions/src/jurisdiction-loader';
+import { JurisdictionLoader } from '@shor/jurisdictions';
 
 export const optionsCommand = new Command('options')
   .description('Show all available options and configurations')
@@ -72,7 +72,7 @@ export const optionsCommand = new Command('options')
         const details = loader.getAvailableJurisdictions();
         
         for (const jurisdiction of jurisdictions) {
-          const detail = details.find(d => d.id === jurisdiction);
+          const detail = details.find((d: any) => d.id === jurisdiction);
           console.log(chalk.blue(`  ${jurisdiction}`));
           if (detail) {
             console.log(chalk.gray(`    Name: ${detail.name}`));
