@@ -9,6 +9,7 @@ import { initV2Command } from './commands/init-v2';
 import { lintCommand } from './commands/lint';
 import { compileCommand } from './commands/compile';
 import { exportAuditCommand } from './commands/export-audit';
+import { deployCommand } from './commands/deploy';
 import { configCommand } from './commands/config';
 import { verifyV2Command } from './commands/verify';
 import { optionsCommand } from './commands/options';
@@ -41,6 +42,8 @@ program
   .description('Export audit bundle containing all artifacts')
   .option('--format <format>', 'Output format', 'zip')
   .action(exportAuditCommand);
+
+program.addCommand(deployCommand);
 
 // Add config commands directly to program
 configCommand.commands.forEach(cmd => program.addCommand(cmd));
