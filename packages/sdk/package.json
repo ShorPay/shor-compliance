@@ -1,0 +1,48 @@
+{
+  "name": "@shor/compliance-sdk",
+  "version": "1.0.0",
+  "description": "Shor Compliance SDK - Programmatic compliance for blockchain applications",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "test": "jest",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "ethers": "^6.13.1",
+    "js-yaml": "^4.1.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/jest": "^29.5.12",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.3",
+    "typescript": "^5.5.3"
+  },
+  "peerDependencies": {
+    "typescript": ">=4.5.0"
+  },
+  "keywords": [
+    "compliance",
+    "blockchain",
+    "sdk",
+    "ethereum",
+    "solana",
+    "kyc",
+    "regulation"
+  ],
+  "author": "Shor Protocol",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shor-protocol/compliance-framework",
+    "directory": "packages/sdk"
+  }
+}

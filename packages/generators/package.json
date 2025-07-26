@@ -1,0 +1,33 @@
+{
+  "name": "@shor/generators",
+  "version": "1.0.0",
+  "description": "Code and document generators for Shor Compliance Framework",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@shor/compliance-sdk": "^1.0.0",
+    "pdfkit": "^0.15.0"
+  },
+  "devDependencies": {
+    "@types/pdfkit": "^0.13.4",
+    "typescript": "^5.5.3"
+  },
+  "keywords": [
+    "compliance",
+    "blockchain",
+    "generator",
+    "solidity",
+    "solana"
+  ],
+  "author": "Shor Protocol",
+  "license": "Apache-2.0"
+}

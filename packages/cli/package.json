@@ -1,0 +1,51 @@
+{
+  "name": "@shor/cli",
+  "version": "1.0.0",
+  "description": "Shor Compliance CLI - Command-line tool for blockchain compliance",
+  "bin": {
+    "shor": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "dev": "ts-node src/cli.ts",
+    "test": "jest",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@shor/compliance-sdk": "^1.0.0",
+    "chalk": "^4.1.2",
+    "commander": "^12.1.0",
+    "inquirer": "^8.2.6",
+    "js-yaml": "^4.1.0",
+    "ora": "^5.4.1",
+    "pdfkit": "^0.15.0"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.7",
+    "@types/js-yaml": "^4.0.9",
+    "@types/pdfkit": "^0.13.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.3"
+  },
+  "keywords": [
+    "compliance",
+    "blockchain",
+    "cli",
+    "ethereum",
+    "solana",
+    "kyc",
+    "regulation"
+  ],
+  "author": "Shor Protocol",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shor-protocol/compliance-framework",
+    "directory": "packages/cli"
+  }
+}

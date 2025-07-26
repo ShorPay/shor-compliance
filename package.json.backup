@@ -1,0 +1,43 @@
+{
+  "name": "shor-compliance",
+  "version": "1.0.0",
+  "main": "dist/cli.js",
+  "bin": {
+    "shor": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/cli.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@project-serum/anchor": "^0.26.0",
+    "@solana/web3.js": "^1.98.2",
+    "@types/inquirer": "^9.0.8",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^24.1.0",
+    "@types/pdfkit": "^0.17.2",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "archiver": "^7.0.1",
+    "axios": "^1.11.0",
+    "chalk": "^4.1.2",
+    "commander": "^14.0.0",
+    "dotenv": "^17.2.1",
+    "ethers": "^5.8.0",
+    "hardhat": "^2.26.1",
+    "inquirer": "^12.8.2",
+    "js-yaml": "^4.1.0",
+    "pdfkit": "^0.17.1",
+    "typescript": "^5.8.3"
+  },
+  "devDependencies": {
+    "@types/archiver": "^6.0.3",
+    "ts-node": "^10.9.2"
+  }
+}
