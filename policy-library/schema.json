@@ -1,7 +1,11 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "required": ["version", "metadata", "modules"],
+  "required": [
+    "version",
+    "metadata",
+    "modules"
+  ],
   "properties": {
     "version": {
       "type": "string",
@@ -9,11 +13,19 @@
     },
     "metadata": {
       "type": "object",
-      "required": ["project_name", "description", "created_date"],
+      "required": [
+        "project_name",
+        "description",
+        "created_date"
+      ],
       "properties": {
-        "project_name": { "type": "string" },
-        "description": { "type": "string" },
-        "created_date": { 
+        "project_name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "created_date": {
           "type": "string",
           "format": "date"
         }
@@ -24,30 +36,134 @@
       "properties": {
         "token_sale": {
           "type": "object",
-          "required": ["start_date", "end_date", "max_cap_usd", "kyc_threshold_usd", "blocklist"],
           "properties": {
-            "start_date": { 
-              "type": "string",
-              "format": "date"
+            "whitepaper_required_threshold_eur": {
+              "type": "number"
             },
-            "end_date": { 
-              "type": "string",
-              "format": "date"
-            },
-            "max_cap_usd": {
-              "type": "number",
-              "minimum": 0
+            "full_authorization_threshold_eur": {
+              "type": "number"
             },
             "kyc_threshold_usd": {
-              "type": "number",
-              "minimum": 0
+              "type": "number"
+            },
+            "max_cap_usd": {
+              "type": "number"
             },
             "blocklist": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "pattern": "^[A-Z]{2}$"
-              }
+              "type": "array"
+            },
+            "whitelist": {
+              "type": "array"
+            },
+            "passporting_enabled": {
+              "type": "boolean"
+            },
+            "home_member_state": {
+              "type": "string"
+            }
+          }
+        },
+        "token_classification": {
+          "type": "object",
+          "properties": {
+            "token_type": {
+              "type": "string"
+            },
+            "utility_token_requirements": {
+              "type": "array"
+            }
+          }
+        },
+        "issuer_requirements": {
+          "type": "object",
+          "properties": {
+            "legal_entity_required": {
+              "type": "boolean"
+            },
+            "eu_establishment_required": {
+              "type": "boolean"
+            },
+            "management_requirements": {
+              "type": "array"
+            },
+            "minimum_capital_eur": {
+              "type": "number"
+            }
+          }
+        },
+        "whitepaper_requirements": {
+          "type": "object",
+          "properties": {
+            "mandatory_content": {
+              "type": "array"
+            },
+            "languages_required": {
+              "type": "array"
+            },
+            "notification_period_days": {
+              "type": "number"
+            },
+            "marketing_allowed_after_notification": {
+              "type": "boolean"
+            }
+          }
+        },
+        "marketing_requirements": {
+          "type": "object",
+          "properties": {
+            "fair_clear_not_misleading": {
+              "type": "boolean"
+            },
+            "mandatory_disclaimers": {
+              "type": "array"
+            },
+            "prohibited_practices": {
+              "type": "array"
+            }
+          }
+        },
+        "ongoing_obligations": {
+          "type": "object",
+          "properties": {
+            "transaction_reporting": {
+              "type": "boolean"
+            },
+            "suspicious_activity_reporting": {
+              "type": "boolean"
+            },
+            "market_abuse_rules": {
+              "type": "array"
+            },
+            "complaint_handling_required": {
+              "type": "boolean"
+            },
+            "complaint_response_days": {
+              "type": "number"
+            }
+          }
+        },
+        "sustainability_requirements": {
+          "type": "object",
+          "properties": {
+            "environmental_disclosure_required": {
+              "type": "boolean"
+            },
+            "consensus_mechanism_disclosure": {
+              "type": "boolean"
+            },
+            "energy_consumption_reporting": {
+              "type": "boolean"
+            }
+          }
+        },
+        "technical_requirements": {
+          "type": "object",
+          "properties": {
+            "custody_requirements": {
+              "type": "array"
+            },
+            "operational_resilience": {
+              "type": "array"
             }
           }
         }

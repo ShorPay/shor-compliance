@@ -1,65 +1,60 @@
-version: '1.0'
+# EU MiCA Token Sale Compliance Template
+# Based on Markets in Crypto-Assets Regulation
+version: "1.0"
 metadata:
-  jurisdiction: European Union
-  regulation_framework: MiCA (Markets in Crypto-Assets)
-  last_updated: '2024-07-25'
-  effective_date: '2024-12-30'
+  jurisdiction: "European Union"
+  regulation_framework: "MiCA (Markets in Crypto-Assets)"
+  last_updated: "2024-07-25"
+  effective_date: "2024-12-30"
   references:
-    - Regulation (EU) 2023/1114
-    - ESMA MiCA Technical Standards
-  generated_from: eu-mica-token-sale
-  generated_at: '2025-07-26T01:58:20.953Z'
+    - "Regulation (EU) 2023/1114"
+    - "ESMA MiCA Technical Standards"
+
 modules:
   token_sale:
-    whitepaper_required_threshold_eur: 1000000
-    full_authorization_threshold_eur: 5000000
-    kyc_threshold_usd: 0
-    max_cap_usd: 5500000
-    blocklist: []
-    whitelist:
-      - AT
-      - BE
-      - BG
-      - HR
-      - CY
-      - CZ
-      - DK
-      - EE
-      - FI
-      - FR
-      - DE
-      - GR
-      - HU
-      - IE
-      - IT
-      - LV
-      - LT
-      - LU
-      - MT
-      - NL
-      - PL
-      - PT
-      - RO
-      - SK
-      - SI
-      - ES
-      - SE
+    # MiCA thresholds
+    whitepaper_required_threshold_eur: 1000000  # €1M
+    full_authorization_threshold_eur: 5000000   # €5M
+    
+    # Convert to USD (approximate)
+    kyc_threshold_usd: 0  # Always required under MiCA
+    max_cap_usd: 5500000  # ~€5M before full authorization
+    
+    # Geographic coverage
+    blocklist: []  # No specific country bans
+    whitelist: [
+      "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR",
+      "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL",
+      "PL", "PT", "RO", "SK", "SI", "ES", "SE"
+    ]
+    
+    # Passporting rights
     passporting_enabled: true
-    home_member_state: DE
+    home_member_state: "DE"  # Must be specified
+    
   token_classification:
-    token_type: utility_token
+    # MiCA categories
+    token_type: "utility_token"  # utility_token, asset_referenced_token, e_money_token
+    
+    # Utility token specific
     utility_token_requirements:
       - clear_utility_description
       - no_financial_rights
       - functional_at_issuance
+      
   issuer_requirements:
     legal_entity_required: true
     eu_establishment_required: true
+    
+    # Governance requirements
     management_requirements:
       - fit_and_proper_test
       - minimum_two_directors
       - compliance_officer_required
+      
+    # Capital requirements (for ARTs/EMTs)
     minimum_capital_eur: 350000
+    
   whitepaper_requirements:
     mandatory_content:
       - issuer_information
@@ -67,40 +62,54 @@ modules:
       - token_characteristics
       - risks_disclosure
       - underlying_technology
-      - environmental_impact
+      - environmental_impact  # ESG requirement
+      
     languages_required:
       - home_member_state_language
       - english
+      
     notification_period_days: 20
     marketing_allowed_after_notification: true
+    
   marketing_requirements:
     fair_clear_not_misleading: true
+    
     mandatory_disclaimers:
       - not_regulated_financial_product
       - capital_at_risk
       - no_eu_protection_scheme
+      
     prohibited_practices:
       - unsolicited_communications
       - misleading_statements
       - omission_of_material_facts
+      
   ongoing_obligations:
     transaction_reporting: true
     suspicious_activity_reporting: true
+    
+    # Market abuse prevention
     market_abuse_rules:
       - insider_trading_prohibition
       - market_manipulation_ban
       - disclosure_obligations
+      
+    # Consumer protection
     complaint_handling_required: true
     complaint_response_days: 15
+    
   sustainability_requirements:
     environmental_disclosure_required: true
     consensus_mechanism_disclosure: true
     energy_consumption_reporting: true
+    
   technical_requirements:
+    # MiCA technical standards
     custody_requirements:
       - segregated_wallets
       - cold_storage_policy
       - insurance_required
+      
     operational_resilience:
       - business_continuity_plan
       - incident_reporting

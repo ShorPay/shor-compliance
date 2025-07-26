@@ -7,6 +7,7 @@ import { generateSolidityContract } from '../utils/solidity-generator';
 import { generateSolidityContractV2 } from '../utils/solidity-generator-v2';
 import { generateSolanaProgram } from '../utils/solana-generator';
 import { generatePolicyDocument } from '../utils/policy-generator';
+import { generatePolicyDocumentV2 } from '../utils/policy-generator-v2';
 
 interface CompileOptions {
   env: string;
@@ -61,7 +62,10 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
 
     // Generate policy document
     console.log(chalk.gray('Generating policy document...'));
-    const policyMarkdown = generatePolicyDocument(complianceData);
+    // Use V2 generator if it's a jurisdiction template
+    const policyMarkdown = complianceData.metadata.jurisdiction 
+      ? generatePolicyDocumentV2(complianceData)
+      : generatePolicyDocument(complianceData);
     const policyMdPath = path.join(outputDir, 'policy.md');
     fs.writeFileSync(policyMdPath, policyMarkdown);
     console.log(chalk.green('✓ Generated policy.md'));

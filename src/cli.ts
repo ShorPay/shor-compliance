@@ -2,7 +2,7 @@
 
 import { Command } from 'commander';
 import chalk from 'chalk';
-import { initCommand } from './commands/init';
+import { initV2Command } from './commands/init-v2';
 import { lintCommand } from './commands/lint';
 import { compileCommand } from './commands/compile';
 import { exportAuditCommand } from './commands/export-audit';
@@ -16,10 +16,7 @@ program
   .description('Shor Compliance CLI - Generate smart contracts and documentation from compliance specifications')
   .version('1.0.0');
 
-program
-  .command('init')
-  .description('Bootstrap a new compliance project')
-  .action(initCommand);
+program.addCommand(initV2Command);
 
 program
   .command('lint')

@@ -1,0 +1,133 @@
+# Singapore Payment Token Service Compliance Template
+# Based on MAS Payment Services Act
+version: "1.0"
+metadata:
+  jurisdiction: "Singapore"
+  regulation_framework: "Payment Services Act 2019"
+  last_updated: "2024-07-25"
+  references:
+    - "MAS PS Act 2019"
+    - "MAS Digital Payment Token Service Guidelines"
+    - "MAS AML/CFT Requirements"
+
+modules:
+  token_sale:
+    # MAS doesn't restrict token sales but regulates DPT services
+    kyc_threshold_usd: 0  # KYC always required
+    max_cap_usd: 999999999  # No specific cap
+    
+    # Geographic restrictions
+    blocklist: [
+      # FATF high-risk jurisdictions
+      "KP", "IR", "MM"
+    ]
+    
+    # Singapore allows global participation
+    whitelist: []  # All countries except blocklist
+    
+  licensing_requirements:
+    # Payment Services Act licensing
+    license_type: "Major Payment Institution"
+    
+    # Thresholds for Major Payment Institution
+    monthly_transaction_threshold_sgd: 3000000  # S$3M
+    float_threshold_sgd: 5000000  # S$5M e-money float
+    
+    # Standard Payment Institution (if below thresholds)
+    capital_requirement_sgd: 100000
+    
+  digital_payment_token_requirements:
+    # Specific DPT service requirements
+    dpt_services:
+      - dealing_in_dpt
+      - facilitating_exchange
+      - custodian_services
+      
+    # Technology risk management
+    technology_requirements:
+      - cybersecurity_measures
+      - system_availability_99_5
+      - incident_response_plan
+      
+  aml_cft_requirements:
+    # MAS AML/CFT requirements
+    customer_due_diligence:
+      - identity_verification
+      - beneficial_ownership
+      - source_of_funds
+      - purpose_of_transaction
+      
+    # Enhanced due diligence triggers
+    edd_thresholds:
+      single_transaction_sgd: 20000
+      accumulated_transactions_sgd: 100000
+      
+    # Suspicious transaction reporting
+    str_required: true
+    str_threshold: 0  # Any suspicious amount
+    
+    # Record keeping
+    record_retention_years: 5
+    
+  risk_management:
+    # Required policies
+    required_policies:
+      - aml_cft_policy
+      - technology_risk_policy
+      - business_continuity_plan
+      - outsourcing_policy
+      
+    # Board and management
+    singapore_resident_director: true
+    compliance_officer_required: true
+    mlro_required: true  # Money Laundering Reporting Officer
+    
+  consumer_protection:
+    # Safeguarding requirements
+    customer_asset_segregation: true
+    trust_account_required: true
+    
+    # Disclosure requirements
+    required_disclosures:
+      - service_terms
+      - fee_schedule
+      - risk_warnings
+      - complaint_procedures
+      
+    # Fair dealing
+    prohibited_practices:
+      - false_advertising
+      - unfair_contract_terms
+      - inadequate_disclosure
+      
+  reporting_obligations:
+    # Regular submissions to MAS
+    regulatory_returns:
+      - quarterly_statistics
+      - annual_audit
+      - incident_reporting
+      
+    # Audit requirements
+    annual_audit_required: true
+    approved_auditor_required: true
+    
+  market_conduct:
+    # MAS market conduct standards
+    insider_trading_monitoring: true
+    market_manipulation_prevention: true
+    
+    # Advertising standards
+    advertising_requirements:
+      - balanced_risk_presentation
+      - no_guaranteed_returns
+      - mas_license_disclosure
+      
+  cross_border_requirements:
+    # Passporting arrangements
+    fintech_bridge_countries: [
+      "GB", "AU", "CA", "CH", "AE"
+    ]
+    
+    # Additional requirements for foreign entities
+    singapore_office_required: true
+    local_representative_required: true

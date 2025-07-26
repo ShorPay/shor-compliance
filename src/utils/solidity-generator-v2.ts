@@ -5,12 +5,16 @@ export function generateSolidityContractV2(complianceData: any): string {
     throw new Error('No token_sale module found in compliance data');
   }
 
-  // Convert dates to timestamps
-  const startTimestamp = Math.floor(new Date(tokenSale.start_date).getTime() / 1000);
-  const endTimestamp = Math.floor(new Date(tokenSale.end_date).getTime() / 1000);
+  // Convert dates to timestamps (use defaults if not provided)
+  const startTimestamp = tokenSale.start_date 
+    ? Math.floor(new Date(tokenSale.start_date).getTime() / 1000)
+    : Math.floor(Date.now() / 1000); // Start now if not specified
+  const endTimestamp = tokenSale.end_date
+    ? Math.floor(new Date(tokenSale.end_date).getTime() / 1000)
+    : Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60); // 1 year from now if not specified
   
   // Generate blocklist mapping initialization
-  const blocklistEntries = tokenSale.blocklist
+  const blocklistEntries = (tokenSale.blocklist || [])
     .map((country: string) => `        blockedCountries["${country}"] = true;`)
     .join('\n');
 
