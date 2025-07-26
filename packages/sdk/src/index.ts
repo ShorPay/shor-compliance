@@ -3,6 +3,7 @@ import { CodeGenerator, DocumentGenerator, GeneratorOptions } from './generators
 import { JurisdictionLoader } from './jurisdictions/loader';
 import { KYCProviderFactory } from './providers/factory';
 import { validateComplianceSpec } from './utils/validation';
+import { GeneratorFactory } from './generators/factory';
 
 export * from './types';
 export * from './generators/base';
@@ -54,6 +55,33 @@ export class ShorCompliance {
    */
   async loadJurisdiction(jurisdiction: string): Promise<ComplianceSpec> {
     return this.jurisdictionLoader.load(jurisdiction);
+  }
+  
+  /**
+   * Load compliance spec from a YAML file
+   */
+  async loadFromFile(filePath: string): Promise<ComplianceSpec> {
+    return this.jurisdictionLoader.loadFromFile(filePath);
+  }
+  
+  /**
+   * Create an empty compliance specification
+   */
+  createEmptySpec(): ComplianceSpec {
+    return {
+      version: '1.0',
+      metadata: {
+        created_date: new Date().toISOString().split('T')[0]
+      },
+      modules: {}
+    };
+  }
+  
+  /**
+   * Save compliance spec to a YAML file
+   */
+  async saveToFile(spec: ComplianceSpec, filePath: string): Promise<void> {
+    return this.jurisdictionLoader.saveToFile(spec, filePath);
   }
   
   /**
@@ -211,18 +239,24 @@ export class ShorCompliance {
    * Get a contract generator for a specific blockchain
    */
   private getContractGenerator(blockchain: Blockchain, options?: GeneratorOptions): CodeGenerator | undefined {
-    // This will be implemented when we move the actual generators
-    // For now, return undefined
-    return this.generators.get(`contract-${blockchain}`) as CodeGenerator;
+    // First check if a custom generator was registered
+    const customGenerator = this.generators.get(`contract-${blockchain}`) as CodeGenerator;
+    if (customGenerator) return customGenerator;
+    
+    // Otherwise use the factory
+    return GeneratorFactory.createContractGenerator(blockchain);
   }
   
   /**
    * Get a document generator by type
    */
   private getDocumentGenerator(type: 'policy' | 'audit'): DocumentGenerator | undefined {
-    // This will be implemented when we move the actual generators
-    // For now, return undefined
-    return this.generators.get(`document-${type}`) as DocumentGenerator;
+    // First check if a custom generator was registered
+    const customGenerator = this.generators.get(`document-${type}`) as DocumentGenerator;
+    if (customGenerator) return customGenerator;
+    
+    // Otherwise use the factory
+    return GeneratorFactory.createDocumentGenerator(type);
   }
 }
 
