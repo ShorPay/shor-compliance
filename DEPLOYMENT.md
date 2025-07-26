@@ -40,12 +40,20 @@ npx hardhat run deploy/deploy-guardrail.js --network localhost
 ### Prerequisites
 1. Create `.env` file:
 ```env
+# Deployment key
 DEPLOYER_PRIVATE_KEY=your_private_key_without_0x
+
+# Network RPC URLs
 ETHEREUM_RPC_URL=https://eth-mainnet.g.alchemy.com/v2/YOUR_KEY
 GOERLI_RPC_URL=https://eth-goerli.g.alchemy.com/v2/YOUR_KEY
+
+# Oracle configuration (IMPORTANT!)
+ORACLE_ADDRESS=0x_your_oracle_address  # Address that can update KYC status
+ORACLE_PRIVATE_KEY=oracle_private_key   # For running oracle service
 ```
 
 2. Fund your deployer address with ETH for gas
+3. (Optional) Fund your oracle address with ETH for updating verifications
 
 ### Deploy to Testnet First
 ```bash
@@ -105,10 +113,29 @@ const guardrail = new ethers.Contract(GUARDRAIL_ADDRESS, GuardrailABI, signer);
 const canInvest = await guardrail.checkCompliance(userAddress, amount, country);
 ```
 
-### 3. Monitor Contract
+### 3. Set Up Oracle Service
+After deployment, you need to run an oracle service to update KYC verifications:
+
+```javascript
+// See ORACLE_ARCHITECTURE.md for complete setup
+const oracle = new KYCOracle({
+  contractAddress: GUARDRAIL_ADDRESS,
+  oraclePrivateKey: process.env.ORACLE_PRIVATE_KEY,
+  sumsubConfig: {
+    appToken: process.env.SUMSUB_APP_TOKEN,
+    secretKey: process.env.SUMSUB_SECRET_KEY
+  }
+});
+
+// Start monitoring verifications
+oracle.start();
+```
+
+### 4. Monitor Contract
 - Watch for `ComplianceCheckFailed` events
 - Monitor total raised vs cap
 - Track KYC verification events
+- Ensure oracle is updating verifications
 
 ## Cost Estimates
 

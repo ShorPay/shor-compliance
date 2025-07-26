@@ -46,6 +46,9 @@ Or via environment variables:
 SUMSUB_APP_TOKEN=your_app_token
 SUMSUB_SECRET_KEY=your_secret_key
 SUMSUB_BASE_URL=https://api.sumsub.com
+
+# Optional: For signing verification proofs
+VERIFICATION_SIGNING_KEY=your_signing_key
 ```
 
 ## Direct API Usage

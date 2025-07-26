@@ -273,6 +273,12 @@ packages/sdk/src/providers/
 - Use environment variables for configuration
 - Follow security best practices for key management
 
+**📝 Verification Signatures**: 
+- Verification proofs can be signed using the `VERIFICATION_SIGNING_KEY` environment variable
+- If not provided, signatures will be empty (suitable for oracle-based verification)
+- For direct proof verification, provide a signing key for security
+- Default implementation uses HMAC-SHA256, but you can extend for other signing methods
+
 ## License
 
 Apache License 2.0 - See [LICENSE](./LICENSE) for details

@@ -9,6 +9,7 @@ export class SumsubProvider extends KYCProvider {
   private apiKey?: string;
   private appToken?: string;
   private secretKey?: string;
+  private signingKey?: string;
 
   constructor() {
     super();
@@ -21,6 +22,7 @@ export class SumsubProvider extends KYCProvider {
     this.apiKey = config.apiKey;
     this.appToken = config.appToken;
     this.secretKey = config.secretKey;
+    this.signingKey = config.signingKey || process.env.VERIFICATION_SIGNING_KEY;
     
     this.client.defaults.headers.common['X-App-Token'] = this.appToken;
     this.client.defaults.headers.common['X-API-Key'] = this.apiKey;
@@ -82,11 +84,14 @@ export class SumsubProvider extends KYCProvider {
       timestamp: Math.floor(Date.now() / 1000),
       verificationId: status.id,
       providerName: this.name,
-      signature: '' // Would implement actual signing logic
+      signature: this.generateSignature({
+        address,
+        verified: status.status === VerificationStatus.APPROVED,
+        timestamp: Math.floor(Date.now() / 1000),
+        verificationId: status.id,
+        providerName: this.name
+      })
     };
-
-    // Generate signature using secret key
-    proof.signature = this.generateSignature(proof);
     
     return proof;
   }
@@ -142,7 +147,33 @@ export class SumsubProvider extends KYCProvider {
   }
 
   private generateSignature(proof: Omit<VerificationProof, 'signature'>): string {
-    // Implement actual signing logic with secret key
-    return 'placeholder_signature';
+    // If no signing key is configured, return empty signature
+    if (!this.signingKey) {
+      return '';
+    }
+
+    // Create message hash from proof data
+    const message = JSON.stringify({
+      address: proof.address,
+      verified: proof.verified,
+      timestamp: proof.timestamp,
+      verificationId: proof.verificationId,
+      providerName: proof.providerName
+    });
+    
+    // Users can implement their own signing logic based on their signing key type
+    // Examples:
+    // - For HMAC: crypto.createHmac('sha256', this.signingKey).update(message).digest('hex')
+    // - For ECDSA: ethers.Wallet(this.signingKey).signMessage(message)
+    // - For simple hash: crypto.createHash('sha256').update(message + this.signingKey).digest('hex')
+    
+    // Default implementation: Simple HMAC with the signing key
+    try {
+      const crypto = require('crypto');
+      return crypto.createHmac('sha256', this.signingKey).update(message).digest('hex');
+    } catch (error) {
+      console.warn('Signing key provided but signature generation failed:', error);
+      return '';
+    }
   }
 }
