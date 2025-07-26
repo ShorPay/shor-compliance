@@ -6,12 +6,14 @@ import PDFDocument from 'pdfkit';
 import inquirer from 'inquirer';
 import { generateSolidityContract, generateSolidityContractV2, generateSolanaProgram, generatePolicyDocument } from '@shor/generators';
 import { validateKYCEnvironment } from '../utils/env-validation';
+import { KYCProviderFactory } from '@shor/providers';
 
 interface CompileOptions {
   env: string;
   blockchain: string;
   withOracle?: boolean;
   interactive?: boolean;
+  kycProvider?: string;
 }
 
 export async function compileCommand(options: CompileOptions): Promise<void> {
@@ -44,8 +46,22 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
         type: 'confirm',
         name: 'withOracle',
         message: 'Include KYC oracle integration for on-chain verification?',
-        default: false,
-        when: (answers) => answers.blockchain === 'ethereum'
+        default: false
+      },
+      {
+        type: 'list',
+        name: 'kycProvider',
+        message: 'Select KYC provider for oracle integration:',
+        choices: () => {
+          const factory = KYCProviderFactory;
+          const providers = factory.getAvailableProviders();
+          return providers.map((provider: string) => ({
+            name: provider.charAt(0).toUpperCase() + provider.slice(1),
+            value: provider
+          }));
+        },
+        default: 'sumsub',
+        when: (answers) => answers.withOracle
       },
       {
         type: 'confirm',
@@ -58,19 +74,24 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     options.blockchain = answers.blockchain;
     options.env = answers.env;
     options.withOracle = answers.withOracle || false;
+    options.kycProvider = answers.kycProvider || 'sumsub';
     
     console.log(chalk.gray('\n📋 Configuration Summary:'));
     console.log(chalk.gray(`  Blockchain: ${options.blockchain}`));
     console.log(chalk.gray(`  Environment: ${options.env}`));
     console.log(chalk.gray(`  Oracle Integration: ${options.withOracle ? 'Yes' : 'No'}`));
+    if (options.withOracle) {
+      console.log(chalk.gray(`  KYC Provider: ${options.kycProvider}`));
+    }
     console.log(chalk.gray(`  Generate PDF: ${answers.generatePdf ? 'Yes' : 'No'}`));
     console.log();
   }
 
   // Validate environment variables if oracle integration is requested
   if (options.withOracle) {
-    console.log(chalk.blue('🔧 Validating KYC environment for oracle integration...'));
-    if (!validateKYCEnvironment('sumsub')) {
+    const provider = options.kycProvider || 'sumsub';
+    console.log(chalk.blue(`🔧 Validating ${provider} KYC environment for oracle integration...`));
+    if (!validateKYCEnvironment(provider)) {
       console.log();
       console.log(chalk.yellow('💡 You can still compile without oracle integration by omitting --with-oracle'));
       process.exit(1);
