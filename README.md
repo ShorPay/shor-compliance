@@ -1,166 +1,134 @@
-# Compliance-as-Code MVP
+# Shor Compliance
 
-A minimal open-source tool that transforms compliance specifications into smart contracts, human-readable documentation, and audit bundles for both Ethereum and Solana blockchains.
+Generate blockchain-enforced compliance smart contracts from simple YAML specifications.
 
-## Overview
+## Features
 
-This CLI tool (`ccac`) implements a "Compliance-as-Code" approach where:
-- **One spec** → Multiple outputs (smart contract + documentation + audit trail)
-- Compliance rules are defined in YAML
-- Automated generation of Solidity contracts (Ethereum) or Rust programs (Solana)
-- Human-readable policy documents
-- Complete audit bundles for regulatory review
-- Multi-chain support: Ethereum and Solana
+- 🌍 **Pre-built jurisdiction templates** (US SEC, EU MiCA, Singapore MAS)
+- 📜 **Compliance-as-Code** - Write rules in YAML, get Solidity/Rust contracts
+- 🔐 **Sumsub KYC/AML integration** - Real-world identity verification
+- 📊 **Multi-chain support** - Ethereum and Solana
+- 📄 **Automatic documentation** - Policy docs, PDFs, and audit trails
 
-## Installation
+## Quick Start
 
 ```bash
+# Install dependencies
 npm install
+
+# Build the CLI
 npm run build
-npm link  # Makes 'ccac' command available globally
+
+# Link globally (optional)
+npm link
+
+# Initialize with a jurisdiction template
+shor init --jurisdiction us-token-sale
+
+# Compile to smart contracts
+shor compile --with-oracle
 ```
 
-## Commands
+## Available Jurisdictions
 
-### `ccac init`
-Bootstraps a new compliance project by creating:
-- `policy-library/compliance.yaml` - Your compliance specification
-- `policy-library/schema.json` - JSON schema for validation
-
-### `ccac lint`
-Validates your `compliance.yaml` against the schema, ensuring:
-- All required fields are present
-- Data types are correct
-- Logical validations (e.g., end date after start date)
-
-### `ccac compile --env=<environment> --blockchain=<ethereum|solana>`
-Generates compliance artifacts from your specification:
-- **For Ethereum (default):**
-  - `build/Guardrail.sol` - Solidity smart contract with rules enforced on-chain
-- **For Solana:**
-  - `build/guardrail.rs` - Rust/Anchor program with rules enforced on-chain
-- **For both:**
-  - `build/policy.pdf` - Human-readable policy document
-  - `build/policy.md` - Markdown version of the policy
-  - `build/audit.json` - Machine-readable audit manifest
-
-### `ccac export-audit --format=zip`
-Creates `audit-bundle.zip` containing all generated artifacts plus:
-- Test results (if available)
-- Original compliance specification
-- Timestamp and metadata
+- `us-token-sale` - SEC Regulation D (506c) for accredited investors
+- `eu-mica-token-sale` - EU Markets in Crypto-Assets Regulation
+- `singapore-payment-token` - MAS Payment Services Act 2019
 
 ## Project Structure
 
 ```
-compliance-project/
+shor-compliance/
 ├── policy-library/
-│   ├── compliance.yaml    # Your compliance specification
-│   └── schema.json        # Validation schema
-├── build/                 # Generated artifacts
-│   ├── Guardrail.sol
-│   ├── policy.pdf
-│   ├── policy.md
-│   └── audit.json
-├── scripts/
-│   └── test-guardrail.js  # Hardhat test script
-└── audit-bundle.zip       # Export bundle
+│   ├── jurisdictions/          # Pre-built compliance templates
+│   │   ├── us-token-sale.yaml
+│   │   ├── eu-mica-token-sale.yaml
+│   │   └── singapore-payment-token.yaml
+│   ├── compliance.yaml         # YOUR project config (gitignored)
+│   ├── schema.json            # Validation schema (gitignored)
+│   └── docs/                  # Generated docs (gitignored)
+├── build/                     # Generated contracts and documents
+└── src/                       # CLI source code
 ```
 
-## Compliance Specification Format
+## Usage
 
-The `compliance.yaml` file defines your compliance rules:
-
-```yaml
-version: "1.0"
-metadata:
-  project_name: "Token Sale Compliance"
-  description: "Compliance rules for token sale"
-  created_date: "2024-01-15"
-
-modules:
-  token_sale:
-    start_date: "2024-03-01"      # Sale start date
-    end_date: "2024-06-01"        # Sale end date
-    max_cap_usd: 5000000          # Maximum funding cap in USD
-    kyc_threshold_usd: 1000       # KYC required above this amount
-    blocklist: ["US", "CN", "IR"] # Blocked country codes (ISO 3166-1 alpha-2)
-```
-
-## Testing the Generated Contract
-
-### Ethereum Testing
-
-After running `ccac compile`, test the generated Ethereum smart contract:
+### 1. Initialize Project
 
 ```bash
-npx hardhat run scripts/test-guardrail.js
+# List available templates
+shor init --list
+
+# Use specific jurisdiction
+shor init --jurisdiction us-token-sale
+
+# Generic template
+shor init
 ```
 
-This script:
-1. Deploys the generated `Guardrail.sol` to a local Hardhat network
-2. Tests multiple scenarios including sale window, cap limits, and country restrictions
-3. Logs results to `test-results.log`
+### 2. Customize Compliance
 
-### Solana Testing
+Edit `policy-library/compliance.yaml` to customize:
+- Token sale parameters
+- KYC thresholds
+- Geographic restrictions
+- Disclosure requirements
 
-After running `ccac compile --blockchain=solana`, test the generated Solana program:
+### 3. Generate Contracts
 
 ```bash
-node scripts/test-solana-guardrail.js
+# Basic compilation
+shor compile
+
+# With KYC oracle integration
+shor compile --with-oracle
+
+# For Solana
+shor compile --blockchain solana
 ```
 
-This provides a test guide and simulated results. For actual Solana testing:
-1. Install Anchor CLI: `npm i -g @project-serum/anchor-cli`
-2. Set up an Anchor project
-3. Deploy and test the program on a local validator
-
-## Example Workflow
+### 4. Export for Audit
 
 ```bash
-# 1. Initialize a new compliance project
-ccac init
-
-# 2. Edit policy-library/compliance.yaml with your rules
-
-# 3. Validate your configuration
-ccac lint
-
-# 4. Generate contracts and documentation for Ethereum (default)
-ccac compile --env=production
-
-# 4b. Or generate for Solana
-ccac compile --env=production --blockchain=solana
-
-# 5. Test the generated contract
-# For Ethereum:
-npx hardhat run scripts/test-guardrail.js
-# For Solana:
-node scripts/test-solana-guardrail.js
-
-# 6. Create audit bundle for regulatory review
-ccac export-audit --format=zip
+shor export-audit
 ```
 
-## Key Features
+## Sumsub Integration
 
-- **Multi-Chain Support**: Generate contracts for both Ethereum and Solana from one spec
-- **Type-Safe Configuration**: JSON schema validation ensures configuration correctness
-- **Automated Contract Generation**: Compliance rules automatically translated to Solidity or Rust
-- **Human-Readable Documentation**: Auto-generated policy documents for non-technical stakeholders
-- **Complete Audit Trail**: All artifacts bundled with metadata for regulatory compliance
-- **On-Chain Enforcement**: Rules are immutably enforced by smart contracts/programs
-
-## Development
+Configure KYC/AML verification:
 
 ```bash
-# Build TypeScript
-npm run build
+# Set API key
+shor set-api-key YOUR_KEY
 
-# Run in development mode
-npx ts-node src/cli.ts <command>
+# Initialize verification
+shor verify init --address 0x123...
+
+# Check status
+shor verify status --address 0x123...
 ```
+
+## Generated Outputs
+
+- `GuardrailWithVerification.sol` - Smart contract enforcing compliance
+- `policy.md` - Human-readable compliance policy
+- `policy.pdf` - PDF for legal teams
+- `audit.json` - Complete audit trail
+
+## Adding New Jurisdictions
+
+1. Research regulatory requirements
+2. Create YAML template in `policy-library/jurisdictions/`
+3. Follow existing template structure
+4. Submit PR with references
+
+## Important Notes
+
+- `compliance.yaml` is YOUR project configuration (gitignored)
+- Jurisdiction templates are read-only references
+- Always review generated contracts with legal counsel
+- Regulations change - keep templates updated
 
 ## License
 
-ISC
+MIT
