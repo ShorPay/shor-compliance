@@ -24,6 +24,50 @@ Shows how KYC/AML verification integrates with the compliance framework.
 - Integrating with smart contracts
 - Direct provider integration options
 
+### 3. Complete SDK Integration (`sdk-complete-integration.ts`)
+
+Comprehensive example showing real-world SDK usage patterns.
+
+**Key concepts:**
+- Loading and customizing jurisdiction templates
+- Implementing custom KYC providers
+- Complete integration workflow
+- Validation and error handling
+- Multi-jurisdiction support
+
+### 4. Custom Generators (`custom-generator.ts`)
+
+Shows how to create custom code and document generators.
+
+**Key concepts:**
+- Building Solana/Anchor generators
+- Creating legal summary documents
+- Smart contract analysis tools
+- Plugin architecture
+- Extending the SDK
+
+### 5. Web3 Integration (`web3-integration.ts`)
+
+Demonstrates integration with Ethereum and web3 applications.
+
+**Key concepts:**
+- Frontend DApp integration
+- Backend batch updates
+- Event monitoring
+- Gas optimization strategies
+- MetaMask integration
+
+### 6. Testing Compliance (`testing-compliance.ts`)
+
+Shows how to test your compliance configurations.
+
+**Key concepts:**
+- Unit testing compliance rules
+- Integration testing with mock contracts
+- Scenario-based testing
+- Validation testing
+- Test automation
+
 ## Running the Examples
 
 These examples demonstrate the intended API and structure. To run them in a real environment:
