@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+// Must load environment variables FIRST, before any other imports
+require('dotenv').config();
+
 import { Command } from 'commander';
 import chalk from 'chalk';
 import { initV2Command } from './commands/init-v2';
