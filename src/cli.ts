@@ -6,12 +6,14 @@ import { initCommand } from './commands/init';
 import { lintCommand } from './commands/lint';
 import { compileCommand } from './commands/compile';
 import { exportAuditCommand } from './commands/export-audit';
+import { configCommand } from './commands/config';
+import { verifyCommand } from './commands/verify';
 
 const program = new Command();
 
 program
-  .name('ccac')
-  .description('Compliance-as-Code CLI - Generate smart contracts and documentation from compliance specifications')
+  .name('shor')
+  .description('Shor Compliance CLI - Generate smart contracts and documentation from compliance specifications')
   .version('1.0.0');
 
 program
@@ -29,6 +31,7 @@ program
   .description('Generate smart contract, policy document, and audit manifest')
   .option('--env <environment>', 'Target environment', 'production')
   .option('--blockchain <blockchain>', 'Target blockchain (ethereum|solana)', 'ethereum')
+  .option('--with-oracle', 'Include Sumsub oracle integration for on-chain verification')
   .action(compileCommand);
 
 program
@@ -36,6 +39,10 @@ program
   .description('Export audit bundle containing all artifacts')
   .option('--format <format>', 'Output format', 'zip')
   .action(exportAuditCommand);
+
+// Add config commands directly to program
+configCommand.commands.forEach(cmd => program.addCommand(cmd));
+program.addCommand(verifyCommand);
 
 program.parse(process.argv);
 

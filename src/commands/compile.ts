@@ -4,12 +4,14 @@ import chalk from 'chalk';
 import yaml from 'js-yaml';
 import PDFDocument from 'pdfkit';
 import { generateSolidityContract } from '../utils/solidity-generator';
+import { generateSolidityContractV2 } from '../utils/solidity-generator-v2';
 import { generateSolanaProgram } from '../utils/solana-generator';
 import { generatePolicyDocument } from '../utils/policy-generator';
 
 interface CompileOptions {
   env: string;
   blockchain: string;
+  withOracle?: boolean;
 }
 
 export async function compileCommand(options: CompileOptions): Promise<void> {
@@ -44,10 +46,17 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
       console.log(chalk.green('✓ Generated guardrail.rs'));
     } else {
       console.log(chalk.gray('Generating Solidity contract...'));
-      const solidityCode = generateSolidityContract(complianceData);
-      const solidityPath = path.join(outputDir, 'Guardrail.sol');
+      const solidityCode = options.withOracle 
+        ? generateSolidityContractV2(complianceData)
+        : generateSolidityContract(complianceData);
+      const contractName = options.withOracle ? 'GuardrailWithVerification.sol' : 'Guardrail.sol';
+      const solidityPath = path.join(outputDir, contractName);
       fs.writeFileSync(solidityPath, solidityCode);
-      console.log(chalk.green('✓ Generated Guardrail.sol'));
+      console.log(chalk.green(`✓ Generated ${contractName}`));
+      
+      if (options.withOracle) {
+        console.log(chalk.yellow('⚠  Remember to deploy with the Shor oracle address'));
+      }
     }
 
     // Generate policy document
@@ -73,7 +82,9 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
 
     // Generate audit manifest
     console.log(chalk.gray('Generating audit manifest...'));
-    const contractFile = options.blockchain === 'solana' ? 'guardrail.rs' : 'Guardrail.sol';
+    const contractFile = options.blockchain === 'solana' 
+      ? 'guardrail.rs' 
+      : (options.withOracle ? 'GuardrailWithVerification.sol' : 'Guardrail.sol');
     const auditManifest = {
       timestamp: new Date().toISOString(),
       environment: options.env,

@@ -1,9 +1,9 @@
 {
-  "name": "compliance-as-code-mvp",
+  "name": "shor-compliance",
   "version": "1.0.0",
   "main": "dist/cli.js",
   "bin": {
-    "ccac": "./dist/cli.js"
+    "shor": "./dist/cli.js"
   },
   "scripts": {
     "build": "tsc",
@@ -24,8 +24,10 @@
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "archiver": "^7.0.1",
-    "chalk": "^5.4.1",
+    "axios": "^1.11.0",
+    "chalk": "^4.1.2",
     "commander": "^14.0.0",
+    "dotenv": "^17.2.1",
     "ethers": "^5.8.0",
     "hardhat": "^2.26.1",
     "js-yaml": "^4.1.0",
