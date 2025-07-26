@@ -24,8 +24,17 @@ export async function exportAuditCommand(options: ExportOptions): Promise<void> 
     process.exit(1);
   }
 
-  // Check for required files
-  const requiredFiles = ['Guardrail.sol', 'policy.pdf', 'audit.json'];
+  // Check for required files - detect which contract files exist
+  const possibleContractFiles = ['Guardrail.sol', 'GuardrailWithVerification.sol', 'guardrail.rs', 'ComplianceGuardrail.sol', 'BasicGuardrail.sol'];
+  const contractFile = possibleContractFiles.find(file => fs.existsSync(path.join(buildDir, file)));
+  
+  if (!contractFile) {
+    console.error(chalk.red('✗ No contract file found. Expected one of:'), possibleContractFiles.join(', '));
+    console.error(chalk.yellow('Run "shor compile" to generate contract files.'));
+    process.exit(1);
+  }
+  
+  const requiredFiles = [contractFile, 'policy.pdf', 'audit.json'];
   const missingFiles = requiredFiles.filter(file => 
     !fs.existsSync(path.join(buildDir, file))
   );
