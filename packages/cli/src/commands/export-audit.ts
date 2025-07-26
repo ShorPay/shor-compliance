@@ -20,7 +20,7 @@ export async function exportAuditCommand(options: ExportOptions): Promise<void> 
 
   // Check if build directory exists
   if (!fs.existsSync(buildDir)) {
-    console.error(chalk.red('✗ Build directory not found. Run "ccac compile" first.'));
+    console.error(chalk.red('✗ Build directory not found. Run "shor compile" first.'));
     process.exit(1);
   }
 
@@ -41,7 +41,7 @@ export async function exportAuditCommand(options: ExportOptions): Promise<void> 
 
   if (missingFiles.length > 0) {
     console.error(chalk.red('✗ Missing required files:'), missingFiles.join(', '));
-    console.error(chalk.yellow('Run "ccac compile" to generate all required files.'));
+    console.error(chalk.yellow('Run "shor compile" to generate all required files.'));
     process.exit(1);
   }
 

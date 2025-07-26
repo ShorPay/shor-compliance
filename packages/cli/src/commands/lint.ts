@@ -8,18 +8,17 @@ import addFormats from 'ajv-formats';
 export function lintCommand(): void {
   console.log(chalk.blue('🔍 Validating compliance configuration...'));
 
-  const policyLibDir = path.join(process.cwd(), 'policy-library');
-  const complianceYamlPath = path.join(policyLibDir, 'compliance.yaml');
-  const schemaPath = path.join(policyLibDir, 'schema.json');
+  const complianceYamlPath = path.join(process.cwd(), 'compliance.yaml');
+  const schemaPath = path.join(process.cwd(), 'schema.json');
 
   // Check if files exist
   if (!fs.existsSync(complianceYamlPath)) {
-    console.error(chalk.red('✗ compliance.yaml not found. Run "ccac init" first.'));
+    console.error(chalk.red('✗ compliance.yaml not found. Run "shor init" first.'));
     process.exit(1);
   }
 
   if (!fs.existsSync(schemaPath)) {
-    console.error(chalk.red('✗ schema.json not found. Run "ccac init" first.'));
+    console.error(chalk.red('✗ schema.json not found. Run "shor init" first.'));
     process.exit(1);
   }
 

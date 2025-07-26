@@ -109,6 +109,6 @@ export function initCommand(): void {
   console.log(chalk.blue('\n✨ Project initialized successfully!'));
   console.log(chalk.gray(`\nNext steps:
   1. Edit ${chalk.white('policy-library/compliance.yaml')} to define your compliance rules
-  2. Run ${chalk.white('ccac lint')} to validate your configuration
-  3. Run ${chalk.white('ccac compile')} to generate contracts and documentation`));
+  2. Run ${chalk.white('shor lint')} to validate your configuration
+  3. Run ${chalk.white('shor compile')} to generate contracts and documentation`));
 }
