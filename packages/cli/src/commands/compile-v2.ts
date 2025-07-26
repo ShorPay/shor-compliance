@@ -3,10 +3,10 @@ import path from 'path';
 import chalk from 'chalk';
 import yaml from 'js-yaml';
 import PDFDocument from 'pdfkit';
-import { generateProviderAgnosticContract } from '../utils/solidity-generator-v3';
-import { generateSolanaProgram } from '../utils/solana-generator';
-import { generatePolicyDocumentV2 } from '../utils/policy-generator-v2';
-import { kycProviderFactory } from '../providers/provider-factory';
+import { generateProviderAgnosticContract } from '@shor/generators/src/solidity-generator-v3';
+import { generateSolanaProgram } from '@shor/generators/src/solana-generator';
+import { generatePolicyDocument } from '@shor/generators/src/policy-generator';
+import { KYCProviderFactory } from '@shor/compliance-sdk/src/providers/factory';
 
 interface CompileOptions {
   env: string;
@@ -49,7 +49,7 @@ export async function compileV2Command(options: CompileOptions): Promise<void> {
           kycProviderName = options.provider;
         } else {
           // Use configured provider
-          const provider = await kycProviderFactory.initialize();
+          const provider = KYCProviderFactory.create('sumsub', {});
           kycProviderName = provider.name;
           console.log(chalk.gray(`Using configured KYC provider: ${kycProviderName}`));
         }
@@ -91,7 +91,7 @@ export async function compileV2Command(options: CompileOptions): Promise<void> {
     // Generate policy document
     console.log(chalk.gray('Generating policy document...'));
     const policyMarkdown = complianceData.metadata.jurisdiction 
-      ? generatePolicyDocumentV2(complianceData)
+      ? generatePolicyDocument(complianceData)
       : generateBasicPolicyDocument(complianceData);
     const policyMdPath = path.join(outputDir, 'policy.md');
     fs.writeFileSync(policyMdPath, policyMarkdown);

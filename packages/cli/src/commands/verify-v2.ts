@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
-import { kycProviderFactory } from '../providers/provider-factory';
-import { VerificationStatus, VerificationType } from '../providers/kyc-provider';
+import { KYCProviderFactory } from '@shor/compliance-sdk/src/providers/factory';
+import { VerificationStatus, VerificationType } from '@shor/compliance-sdk/src/types/kyc';
 
 export const verifyV2Command = new Command('verify')
   .description('Manage KYC/AML verifications through configured provider');

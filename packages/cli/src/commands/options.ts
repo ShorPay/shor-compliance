@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import { createShorCompliance } from '@shor/compliance-sdk';
-import { JurisdictionLoader } from '../utils/jurisdiction-loader';
+import { JurisdictionLoader } from '@shor/jurisdictions/src/jurisdiction-loader';
 
 export const optionsCommand = new Command('options')
   .description('Show all available options and configurations')

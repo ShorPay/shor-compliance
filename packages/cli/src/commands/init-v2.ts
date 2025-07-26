@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
 import yaml from 'js-yaml';
-import { JurisdictionLoader } from '../utils/jurisdiction-loader';
+import { JurisdictionLoader } from '@shor/jurisdictions/src/jurisdiction-loader';
 import inquirer from 'inquirer';
 
 export const initV2Command = new Command('init')
