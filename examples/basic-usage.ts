@@ -61,32 +61,37 @@ async function main() {
     }
   };
 
-  try {
-    // Compile the specification
-    console.log('Compiling compliance specification...');
-    const result = await compliance.compile(spec, {
-      blockchain: 'ethereum',
-      generatorOptions: {
-        withOracle: true
-      }
-    });
-
-    console.log('\nCompilation successful!');
-    console.log(`Generated ${Object.keys(result.contracts).length} contracts`);
-    console.log(`Generated ${Object.keys(result.documents).length} documents`);
-    
-    // Display generated files
-    console.log('\nGenerated files:');
-    Object.keys(result.contracts).forEach(file => {
-      console.log(`  - contracts/${file}`);
-    });
-    Object.keys(result.documents).forEach(file => {
-      console.log(`  - documents/${file}`);
-    });
-
-  } catch (error) {
-    console.error('Compilation failed:', error);
-  }
+  // Note: The compile method would be implemented to use the actual generators
+  // For now, this demonstrates the intended API structure
+  
+  console.log('Compliance specification created successfully!');
+  console.log('\nTo compile this specification:');
+  console.log('1. Use the CLI: shor compile --blockchain ethereum --with-oracle');
+  console.log('2. Or implement custom generators using the SDK interfaces');
+  
+  // Example of what the compile method would return:
+  const exampleResult = {
+    contracts: {
+      'Guardrail.sol': '// Generated Solidity contract...',
+      'GuardrailWithVerification.sol': '// Contract with oracle verification...'
+    },
+    documents: {
+      'policy.md': '# Compliance Policy\n...',
+      'policy.pdf': '<Buffer>',
+      'audit.json': '{"version": "1.0", "compliance": {...}}'
+    },
+    metadata: {
+      jurisdiction: 'United States',
+      blockchain: 'ethereum' as const,
+      timestamp: new Date().toISOString()
+    }
+  };
+  
+  console.log('\nExample output structure:', {
+    contracts: Object.keys(exampleResult.contracts),
+    documents: Object.keys(exampleResult.documents),
+    metadata: exampleResult.metadata
+  });
 }
 
 // Run the example
