@@ -60,13 +60,12 @@ docs/
 config.local.json
 local.settings.json
 
-# User-specific compliance configuration
-policy-library/compliance.yaml
-policy-library/schema.json
-policy-library/docs/
-
-# But keep the jurisdiction templates
-!policy-library/jurisdictions/
+# User-generated files
+policy-library/
+compliance.yaml
+schema.json
+test-compliance.yaml
+*.pdf
 
 # Shor CLI configuration
 .shor/

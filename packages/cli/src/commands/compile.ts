@@ -68,13 +68,12 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
   
   console.log(chalk.blue(`📦 Compiling compliance rules for ${options.blockchain} blockchain, environment: ${options.env}`));
 
-  const policyLibDir = path.join(process.cwd(), 'policy-library');
-  const complianceYamlPath = path.join(policyLibDir, 'compliance.yaml');
+  const complianceYamlPath = path.join(process.cwd(), 'compliance.yaml');
   const outputDir = path.join(process.cwd(), 'build');
 
   // Check if compliance.yaml exists
   if (!fs.existsSync(complianceYamlPath)) {
-    console.error(chalk.red('✗ compliance.yaml not found. Run "ccac init" first.'));
+    console.error(chalk.red('✗ compliance.yaml not found. Run "shor init" first.'));
     process.exit(1);
   }
 

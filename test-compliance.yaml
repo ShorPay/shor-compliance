@@ -14,7 +14,7 @@ metadata:
   description: Compliance rules for token sale
   created_date: '2025-07-26'
   generated_from: us-token-sale
-  generated_at: '2025-07-26T20:08:10.495Z'
+  generated_at: '2025-07-26T20:32:53.844Z'
 modules:
   token_sale:
     accredited_only: true

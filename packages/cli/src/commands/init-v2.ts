@@ -54,12 +54,6 @@ export const initV2Command = new Command('init')
 
     console.log(chalk.blue('🚀 Initializing compliance project...'));
 
-    // Create policy-library directory
-    const policyLibDir = path.join(process.cwd(), 'policy-library');
-    if (!fs.existsSync(policyLibDir)) {
-      fs.mkdirSync(policyLibDir, { recursive: true });
-    }
-
     // Generate compliance spec
     let complianceSpec: any;
     
@@ -95,7 +89,7 @@ export const initV2Command = new Command('init')
     }
 
     // Write compliance.yaml
-    const complianceYamlPath = path.join(policyLibDir, 'compliance.yaml');
+    const complianceYamlPath = path.join(process.cwd(), 'compliance.yaml');
     if (fs.existsSync(complianceYamlPath)) {
       const answer = await inquirer.prompt([
         {
@@ -117,7 +111,7 @@ export const initV2Command = new Command('init')
 
     // Create jurisdiction-specific docs if using template
     if (options.jurisdiction && options.jurisdiction !== 'generic') {
-      const docsDir = path.join(policyLibDir, 'docs');
+      const docsDir = path.join(process.cwd(), 'docs');
       if (!fs.existsSync(docsDir)) {
         fs.mkdirSync(docsDir, { recursive: true });
       }
@@ -155,7 +149,7 @@ ${complianceSpec.metadata.references?.map((ref: string) => `- ${ref}`).join('\n'
     }
 
     // Write schema.json
-    const schemaPath = path.join(policyLibDir, 'schema.json');
+    const schemaPath = path.join(process.cwd(), 'schema.json');
     const schema = generateDynamicSchema(complianceSpec);
     fs.writeFileSync(schemaPath, JSON.stringify(schema, null, 2));
     console.log(chalk.green('✓ Created schema.json'));
@@ -168,10 +162,10 @@ ${complianceSpec.metadata.references?.map((ref: string) => `- ${ref}`).join('\n'
     }
     
     console.log(chalk.gray(`\nNext steps:
-  1. Edit ${chalk.white('policy-library/compliance.yaml')} to customize your compliance rules
+  1. Edit ${chalk.white('compliance.yaml')} to customize your compliance rules
   2. Run ${chalk.white('shor lint')} to validate your configuration
-  3. Run ${chalk.white('shor compile --with-oracle')} to generate contracts with KYC integration
-  4. Run ${chalk.white('shor verify init --address <addr>')} to start KYC verification`));
+  3. Run ${chalk.white('shor compile')} to generate contracts and documentation
+  4. Run ${chalk.white('shor compile --with-oracle')} to include KYC integration`));
   });
 
 function generateDynamicSchema(spec: any): any {
