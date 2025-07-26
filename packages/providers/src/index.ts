@@ -5,7 +5,7 @@ export * from './base';
 export * from './factory';
 
 // Export providers
-export * from './sumsub';
+export * from './kyc/sumsub';
 
 // Re-export commonly used types
 export { 

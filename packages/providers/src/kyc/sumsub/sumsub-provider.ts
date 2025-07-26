@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
-import { KYCProvider, VerificationRequest, VerificationResult, VerificationStatus, VerificationType, VerificationProof } from '../kyc-provider';
+import { KYCProvider, VerificationRequest, VerificationResult, VerificationStatus, VerificationType, VerificationProof } from '../../kyc-provider';
 
 export class SumsubProvider extends KYCProvider {
   readonly name = 'sumsub';

@@ -6,7 +6,7 @@ import PDFDocument from 'pdfkit';
 import { generateProviderAgnosticContract } from '@shor/generators/src/solidity-generator-v3';
 import { generateSolanaProgram } from '@shor/generators/src/solana-generator';
 import { generatePolicyDocument } from '@shor/generators/src/policy-generator';
-import { KYCProviderFactory } from '@shor/compliance-sdk/src/providers/factory';
+import { KYCProviderFactory } from '@shor/providers';
 
 interface CompileOptions {
   env: string;

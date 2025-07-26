@@ -1,15 +1,21 @@
-import { KYCProvider, KYCProviderConfig } from '../types';
+import { KYCProvider, KYCProviderConfig } from './kyc-provider';
+import { SumsubProvider } from './kyc/sumsub';
 
 /**
  * Factory for creating KYC providers
  */
 export class KYCProviderFactory {
-  private static providers = new Map<string, new (config: KYCProviderConfig) => KYCProvider>();
+  private static providers = new Map<string, new () => KYCProvider>();
+  
+  // Auto-register built-in providers
+  static {
+    this.register('sumsub', SumsubProvider);
+  }
   
   /**
    * Register a provider class
    */
-  static register(name: string, providerClass: new (config: KYCProviderConfig) => KYCProvider): void {
+  static register(name: string, providerClass: new () => KYCProvider): void {
     this.providers.set(name.toLowerCase(), providerClass);
   }
   
@@ -22,7 +28,10 @@ export class KYCProviderFactory {
       throw new Error(`Unknown KYC provider: ${name}`);
     }
     
-    return new ProviderClass(config);
+    const provider = new ProviderClass();
+    provider.configure(config);
+    
+    return provider;
   }
   
   /**
@@ -37,5 +46,17 @@ export class KYCProviderFactory {
    */
   static getAvailableProviders(): string[] {
     return this.list();
+  }
+  
+  /**
+   * Get provider configuration requirements
+   */
+  static getProviderRequirements(provider: string): string[] {
+    switch (provider.toLowerCase()) {
+      case 'sumsub':
+        return ['appToken', 'secretKey', 'baseURL'];
+      default:
+        return [];
+    }
   }
 }

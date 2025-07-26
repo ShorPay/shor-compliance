@@ -7,7 +7,7 @@ import { lintCommand } from './commands/lint';
 import { compileCommand } from './commands/compile';
 import { exportAuditCommand } from './commands/export-audit';
 import { configCommand } from './commands/config';
-import { verifyCommand } from './commands/verify';
+import { verifyV2Command } from './commands/verify';
 import { optionsCommand } from './commands/options';
 
 const program = new Command();
@@ -41,7 +41,7 @@ program
 
 // Add config commands directly to program
 configCommand.commands.forEach(cmd => program.addCommand(cmd));
-program.addCommand(verifyCommand);
+program.addCommand(verifyV2Command);
 program.addCommand(optionsCommand);
 
 program.parse(process.argv);

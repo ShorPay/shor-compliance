@@ -41,6 +41,10 @@ export interface VerificationProof {
   providerName: string;
 }
 
+export interface KYCProviderConfig {
+  [key: string]: any;
+}
+
 export abstract class KYCProvider {
   abstract readonly name: string;
   abstract readonly supportedTypes: VerificationType[];
