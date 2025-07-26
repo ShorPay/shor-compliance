@@ -5,6 +5,7 @@ import yaml from 'js-yaml';
 import PDFDocument from 'pdfkit';
 import inquirer from 'inquirer';
 import { generateSolidityContract, generateSolidityContractV2, generateSolanaProgram, generatePolicyDocument } from '@shor/generators';
+import { validateKYCEnvironment } from '../utils/env-validation';
 
 interface CompileOptions {
   env: string;
@@ -64,6 +65,16 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     console.log(chalk.gray(`  Oracle Integration: ${options.withOracle ? 'Yes' : 'No'}`));
     console.log(chalk.gray(`  Generate PDF: ${answers.generatePdf ? 'Yes' : 'No'}`));
     console.log();
+  }
+
+  // Validate environment variables if oracle integration is requested
+  if (options.withOracle) {
+    console.log(chalk.blue('🔧 Validating KYC environment for oracle integration...'));
+    if (!validateKYCEnvironment('sumsub')) {
+      console.log();
+      console.log(chalk.yellow('💡 You can still compile without oracle integration by omitting --with-oracle'));
+      process.exit(1);
+    }
   }
   
   console.log(chalk.blue(`📦 Compiling compliance rules for ${options.blockchain} blockchain, environment: ${options.env}`));

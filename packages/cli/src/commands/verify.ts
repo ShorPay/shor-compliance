@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import { KYCProviderFactory, VerificationStatus, VerificationType } from '@shor/providers';
+import { validateKYCEnvironment, showKYCProviderRequirements } from '../utils/env-validation';
 
 export const verifyV2Command = new Command('verify')
   .description('Manage KYC/AML verifications through configured provider');
@@ -19,16 +20,8 @@ verifyV2Command
       process.exit(1);
     }
 
-    const requirements = factory.getProviderRequirements(options.provider);
-    console.log(chalk.blue(`Configuring ${options.provider} provider...`));
-    console.log(chalk.gray(`Required configuration: ${requirements.join(', ')}`));
-    
-    // Interactive configuration would go here
-    // For now, show what's needed
-    console.log(chalk.yellow(`\nTo complete configuration, add these to your environment or config:`));
-    requirements.forEach((req: any) => {
-      console.log(chalk.gray(`  ${req.toUpperCase()}: your_${req}_value`));
-    });
+    console.log(chalk.blue(`🔧 Configuring ${options.provider} provider...`));
+    showKYCProviderRequirements(options.provider);
   });
 
 // List providers command  
@@ -58,6 +51,11 @@ verifyV2Command
   .option('-l, --level <level>', 'Verification level name', 'basic-kyc')
   .action(async (options) => {
     try {
+      // Validate environment variables before proceeding
+      if (!validateKYCEnvironment('sumsub')) {
+        process.exit(1);
+      }
+
       const provider = KYCProviderFactory.create('sumsub', {});
       
       console.log(chalk.gray(`Initializing verification with ${provider.name} provider...`));
@@ -96,6 +94,11 @@ verifyV2Command
   .requiredOption('-a, --address <address>', 'Address to check')
   .action(async (options) => {
     try {
+      // Validate environment variables before proceeding
+      if (!validateKYCEnvironment('sumsub')) {
+        process.exit(1);
+      }
+
       const provider = KYCProviderFactory.create('sumsub', {});
       const status = await provider.getVerificationStatus(options.address);
 
@@ -130,6 +133,11 @@ verifyV2Command
   .option('-c, --contract <address>', 'Filter by contract address')
   .action(async (options) => {
     try {
+      // Validate environment variables before proceeding
+      if (!validateKYCEnvironment('sumsub')) {
+        process.exit(1);
+      }
+
       const provider = KYCProviderFactory.create('sumsub', {});
       const verifications = await provider.listVerifications(options.contract);
 
@@ -161,6 +169,11 @@ verifyV2Command
   .requiredOption('-a, --address <address>', 'Address to get proof for')
   .action(async (options) => {
     try {
+      // Validate environment variables before proceeding
+      if (!validateKYCEnvironment('sumsub')) {
+        process.exit(1);
+      }
+
       const provider = KYCProviderFactory.create('sumsub', {});
       const proof = await provider.getVerificationProof(options.address);
 
