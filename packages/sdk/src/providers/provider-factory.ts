@@ -1,5 +1,5 @@
 import { KYCProvider } from './kyc-provider';
-import { SumsubProvider } from './sumsub-provider';
+import { SumsubProvider } from './sumsub';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
