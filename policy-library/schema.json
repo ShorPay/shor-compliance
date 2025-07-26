@@ -37,12 +37,6 @@
         "token_sale": {
           "type": "object",
           "properties": {
-            "whitepaper_required_threshold_eur": {
-              "type": "number"
-            },
-            "full_authorization_threshold_eur": {
-              "type": "number"
-            },
             "kyc_threshold_usd": {
               "type": "number"
             },
@@ -54,67 +48,84 @@
             },
             "whitelist": {
               "type": "array"
-            },
-            "passporting_enabled": {
-              "type": "boolean"
-            },
-            "home_member_state": {
-              "type": "string"
             }
           }
         },
-        "token_classification": {
+        "licensing_requirements": {
           "type": "object",
           "properties": {
-            "token_type": {
+            "license_type": {
               "type": "string"
             },
-            "utility_token_requirements": {
-              "type": "array"
-            }
-          }
-        },
-        "issuer_requirements": {
-          "type": "object",
-          "properties": {
-            "legal_entity_required": {
-              "type": "boolean"
+            "monthly_transaction_threshold_sgd": {
+              "type": "number"
             },
-            "eu_establishment_required": {
-              "type": "boolean"
+            "float_threshold_sgd": {
+              "type": "number"
             },
-            "management_requirements": {
-              "type": "array"
-            },
-            "minimum_capital_eur": {
+            "capital_requirement_sgd": {
               "type": "number"
             }
           }
         },
-        "whitepaper_requirements": {
+        "digital_payment_token_requirements": {
           "type": "object",
           "properties": {
-            "mandatory_content": {
+            "dpt_services": {
               "type": "array"
             },
-            "languages_required": {
+            "technology_requirements": {
+              "type": "array"
+            }
+          }
+        },
+        "aml_cft_requirements": {
+          "type": "object",
+          "properties": {
+            "customer_due_diligence": {
               "type": "array"
             },
-            "notification_period_days": {
+            "edd_thresholds": {
+              "type": "object"
+            },
+            "str_required": {
+              "type": "boolean"
+            },
+            "str_threshold": {
               "type": "number"
             },
-            "marketing_allowed_after_notification": {
+            "record_retention_years": {
+              "type": "number"
+            }
+          }
+        },
+        "risk_management": {
+          "type": "object",
+          "properties": {
+            "required_policies": {
+              "type": "array"
+            },
+            "singapore_resident_director": {
+              "type": "boolean"
+            },
+            "compliance_officer_required": {
+              "type": "boolean"
+            },
+            "mlro_required": {
               "type": "boolean"
             }
           }
         },
-        "marketing_requirements": {
+        "consumer_protection": {
           "type": "object",
           "properties": {
-            "fair_clear_not_misleading": {
+            "customer_asset_segregation": {
               "type": "boolean"
             },
-            "mandatory_disclaimers": {
+            "trust_account_required": {
+              "type": "boolean"
+            },
+            "required_disclosures": {
               "type": "array"
             },
             "prohibited_practices": {
@@ -122,48 +133,45 @@
             }
           }
         },
-        "ongoing_obligations": {
+        "reporting_obligations": {
           "type": "object",
           "properties": {
-            "transaction_reporting": {
-              "type": "boolean"
-            },
-            "suspicious_activity_reporting": {
-              "type": "boolean"
-            },
-            "market_abuse_rules": {
+            "regulatory_returns": {
               "type": "array"
             },
-            "complaint_handling_required": {
+            "annual_audit_required": {
               "type": "boolean"
             },
-            "complaint_response_days": {
-              "type": "number"
-            }
-          }
-        },
-        "sustainability_requirements": {
-          "type": "object",
-          "properties": {
-            "environmental_disclosure_required": {
-              "type": "boolean"
-            },
-            "consensus_mechanism_disclosure": {
-              "type": "boolean"
-            },
-            "energy_consumption_reporting": {
+            "approved_auditor_required": {
               "type": "boolean"
             }
           }
         },
-        "technical_requirements": {
+        "market_conduct": {
           "type": "object",
           "properties": {
-            "custody_requirements": {
+            "insider_trading_monitoring": {
+              "type": "boolean"
+            },
+            "market_manipulation_prevention": {
+              "type": "boolean"
+            },
+            "advertising_requirements": {
+              "type": "array"
+            }
+          }
+        },
+        "cross_border_requirements": {
+          "type": "object",
+          "properties": {
+            "fintech_bridge_countries": {
               "type": "array"
             },
-            "operational_resilience": {
-              "type": "array"
+            "singapore_office_required": {
+              "type": "boolean"
+            },
+            "local_representative_required": {
+              "type": "boolean"
             }
           }
         }

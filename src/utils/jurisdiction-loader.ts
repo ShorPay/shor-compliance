@@ -26,7 +26,12 @@ export class JurisdictionLoader {
   private templates: Map<string, JurisdictionTemplate> = new Map();
 
   constructor() {
-    this.templatesDir = path.join(__dirname, '..', 'data', 'jurisdictions');
+    // Look for jurisdictions in the policy-library folder
+    this.templatesDir = path.join(process.cwd(), 'policy-library', 'jurisdictions');
+    // Fallback to src/data if policy-library doesn't exist
+    if (!fs.existsSync(this.templatesDir)) {
+      this.templatesDir = path.join(__dirname, '..', 'data', 'jurisdictions');
+    }
     this.loadTemplates();
   }
 
