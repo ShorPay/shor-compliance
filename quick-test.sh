@@ -15,7 +15,7 @@ echo
 
 # Initialize a project
 echo "3. Initializing US-SEC compliance..."
-npx shor init --jurisdiction us-sec --force
+npx shor init --jurisdiction us-token-sale --force
 echo
 
 # Show the generated file
