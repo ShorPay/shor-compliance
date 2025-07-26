@@ -1,15 +1,18 @@
 # US Token Sale Compliance Template
 # Based on SEC guidance and Howey Test considerations
-version: "1.0"
+# Updated with March 2025 SEC guidance and Crypto Task Force direction
+version: "1.1"
 metadata:
   jurisdiction: "United States"
   regulation_framework: "SEC Securities Act"
-  last_updated: "2024-07-25"
+  last_updated: "2025-07-26"
   references:
     - "SEC Framework for Investment Contract Analysis"
     - "Regulation D (506c)"
     - "Regulation S"
     - "Regulation A+"
+    - "SEC Crypto Task Force Guidance (February 2025)"
+    - "SEC No-Action Letter on 506(c) Verification (March 2025)"
 
 modules:
   token_sale:
@@ -21,6 +24,8 @@ modules:
     # Maximum raise under Reg D
     max_cap_usd: 999999999  # Effectively unlimited
     min_investment_usd: 25000  # Typical for accredited
+    # March 2025 SEC guidance: $200k+ investment allows self-attestation
+    self_attestation_threshold_usd: 200000
     
     # Geographic restrictions
     blocklist: []  # US can participate
@@ -37,11 +42,26 @@ modules:
       - financial_statements
       - conflicts_of_interest
     
-    # Howey Test mitigation
+    # Howey Test mitigation (per 2025 SEC guidance)
     utility_requirements:
       - no_profit_expectation_marketing
       - functional_token_at_launch
       - decentralized_development
+      - no_centralized_control  # 2025 guidance emphasis
+      - no_pre_mining  # 2025 guidance emphasis
+    
+    # 2025 SEC token classification factors
+    token_classification:
+      likely_not_security_if:
+        - utility_focused_not_investment
+        - decentralized_network_operations
+        - layer1_gas_token
+        - fiat_backed_stablecoin_with_audit
+      likely_security_if:
+        - centrally_controlled
+        - pre_mined_tokens
+        - marketed_for_profit
+        - limited_supply_with_value_promises
     
   investor_verification:
     # Reg D 506(c) requires verification
@@ -51,6 +71,7 @@ modules:
       - net_worth_verification  # $1M excluding residence
       - professional_certification  # Series 7, 65, 82
       - knowledgeable_employee
+      - self_attestation_with_minimum  # March 2025: $200k+ investment
     
     # Bad actor checks
     bad_actor_check_required: true

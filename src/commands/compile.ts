@@ -7,7 +7,6 @@ import { generateSolidityContract } from '../utils/solidity-generator';
 import { generateSolidityContractV2 } from '../utils/solidity-generator-v2';
 import { generateSolanaProgram } from '../utils/solana-generator';
 import { generatePolicyDocument } from '../utils/policy-generator';
-import { generatePolicyDocumentV2 } from '../utils/policy-generator-v2';
 
 interface CompileOptions {
   env: string;
@@ -62,23 +61,54 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
 
     // Generate policy document
     console.log(chalk.gray('Generating policy document...'));
-    // Use V2 generator if it's a jurisdiction template
-    const policyMarkdown = complianceData.metadata.jurisdiction 
-      ? generatePolicyDocumentV2(complianceData)
-      : generatePolicyDocument(complianceData);
+    // Use PDF Generator enhanced enforcement indicators
+    const policyMarkdown = generatePolicyDocument(complianceData);
     const policyMdPath = path.join(outputDir, 'policy.md');
     fs.writeFileSync(policyMdPath, policyMarkdown);
     console.log(chalk.green('✓ Generated policy.md'));
 
-    // Generate PDF version
-    const doc = new PDFDocument();
+    // Generate PDF version with enhanced formatting
+    const doc = new PDFDocument({ margin: 50 });
     const pdfPath = path.join(outputDir, 'policy.pdf');
     const stream = fs.createWriteStream(pdfPath);
     doc.pipe(stream);
     
-    doc.fontSize(20).text('Compliance Policy Document', { align: 'center' });
+    // Title
+    doc.fontSize(24).text('Compliance Policy Document', { align: 'center' });
     doc.moveDown();
-    doc.fontSize(12).text(policyMarkdown.replace(/#+\s/g, '').replace(/\*/g, ''));
+    
+    // Add enforcement legend
+    doc.fontSize(14).text('Enforcement Indicators:', { underline: true });
+    doc.fontSize(12)
+      .text('[ON-CHAIN]: Automatically enforced by smart contract', { indent: 20 })
+      .text('[OFF-CHAIN]: Manual process required', { indent: 20 })
+      .text('[HYBRID]: Combination of both', { indent: 20 });
+    doc.moveDown(2);
+    
+    // Process markdown content for PDF
+    const lines = policyMarkdown.split('\n');
+    for (const line of lines) {
+      if (line.startsWith('# ')) {
+        doc.fontSize(20).text(line.replace('# ', ''), { align: 'center' });
+      } else if (line.startsWith('## ')) {
+        doc.moveDown();
+        doc.fontSize(16).text(line.replace('## ', ''), { underline: true });
+      } else if (line.startsWith('### ')) {
+        doc.fontSize(14).text(line.replace('### ', ''));
+      } else if (line.startsWith('- ')) {
+        doc.fontSize(11).text(line, { indent: 20 });
+      } else if (line.includes('🔗') || line.includes('📋') || line.includes('🔄')) {
+        // Highlight enforcement indicators
+        doc.fontSize(12).fillColor('blue').text(line).fillColor('black');
+      } else if (line.startsWith('**') && line.endsWith('**')) {
+        // Bold text
+        doc.fontSize(11).font('Helvetica-Bold').text(line.replace(/\*\*/g, ''));
+        doc.font('Helvetica');
+      } else {
+        doc.fontSize(11).text(line);
+      }
+    }
+    
     doc.end();
     
     await new Promise<void>(resolve => stream.on('finish', resolve));

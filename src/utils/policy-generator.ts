@@ -1,86 +1,414 @@
 export function generatePolicyDocument(complianceData: any): string {
   const metadata = complianceData.metadata;
-  const tokenSale = complianceData.modules?.token_sale;
+  const modules = complianceData.modules;
   
-  if (!tokenSale) {
-    throw new Error('No token_sale module found in compliance data');
-  }
-
-  const blocklistFormatted = tokenSale.blocklist.join(', ');
-  const maxCapFormatted = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0
-  }).format(tokenSale.max_cap_usd);
+  const isJurisdictionTemplate = metadata.jurisdiction && metadata.regulation_framework;
   
-  const kycThresholdFormatted = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0
-  }).format(tokenSale.kyc_threshold_usd);
+  // Build the header
+  let document = '';
+  
+  if (isJurisdictionTemplate) {
+    document = `# ${metadata.jurisdiction} Compliance Policy
 
-  return `# ${metadata.project_name}
-
-## ${metadata.description}
+## Regulatory Framework: ${metadata.regulation_framework}
 
 **Document Version:** ${complianceData.version}  
-**Created Date:** ${metadata.created_date}  
+**Last Updated:** ${metadata.last_updated || new Date().toISOString().split('T')[0]}  
 **Generated:** ${new Date().toISOString()}
 
-## Token Sale Compliance Rules
+`;
 
-This document outlines the compliance requirements and restrictions for the token sale.
+    if (metadata.references && metadata.references.length > 0) {
+      document += `### Regulatory References\n\n`;
+      metadata.references.forEach((ref: string) => {
+        document += `- ${ref}\n`;
+      });
+      document += '\n';
+    }
+  } else {
+    document = `# ${metadata.project_name || 'Compliance Policy'}
 
-### 1. Sale Period
+## ${metadata.description || 'Compliance Rules and Requirements'}
 
-The token sale will be conducted within a strictly defined time window:
+**Document Version:** ${complianceData.version}  
+**Created Date:** ${metadata.created_date || new Date().toISOString().split('T')[0]}  
+**Generated:** ${new Date().toISOString()}
 
-- **Start Date:** ${tokenSale.start_date}
-- **End Date:** ${tokenSale.end_date}
+`;
+  }
 
-*Contributions outside this period will be automatically rejected by the smart contract.*
+  // Add enforcement legend
+  document += `## Enforcement Mechanisms
 
-### 2. Funding Cap
+This document uses the following indicators to show how each rule is enforced:
 
-To ensure regulatory compliance and controlled distribution:
-
-- **Maximum Cap:** ${maxCapFormatted}
-
-*Once this cap is reached, no further contributions will be accepted.*
-
-### 3. Geographic Restrictions
-
-Due to regulatory requirements, participants from the following jurisdictions are prohibited from participating:
-
-- **Blocked Countries:** ${blocklistFormatted}
-
-*The smart contract will verify participant jurisdiction and reject contributions from restricted regions.*
-
-### 4. Know Your Customer (KYC) Requirements
-
-To comply with anti-money laundering (AML) regulations:
-
-- **KYC Threshold:** ${kycThresholdFormatted}
-- Contributors whose total contributions meet or exceed this threshold must complete KYC verification
-- KYC verification must be completed before the contribution can be accepted
-
-### 5. Compliance Enforcement
-
-All rules are enforced through:
-
-1. **On-chain Smart Contract:** The \`Guardrail.sol\` contract automatically validates all contributions
-2. **Real-time Validation:** Each contribution is checked against all rules before acceptance
-3. **Immutable Rules:** Once deployed, compliance rules cannot be modified
-
-### 6. Audit Trail
-
-All compliance checks and contribution attempts are recorded on-chain, providing a complete audit trail including:
-
-- Contribution attempts (successful and failed)
-- Reasons for any rejected contributions
-- Timestamp of all activities
+- **[ON-CHAIN]**: Automatically enforced by smart contract
+- **[OFF-CHAIN]**: Manual process or external verification required
+- **[HYBRID]**: Combination of on-chain and off-chain enforcement
 
 ---
 
-*This document was automatically generated from the compliance specification and represents the authoritative compliance policy for this token sale.*`;
+`;
+
+  // Process each module with enforcement indicators
+  for (const [moduleName, moduleData] of Object.entries(modules)) {
+    document += generateEnhancedModuleSection(moduleName, moduleData);
+  }
+
+  // Add compliance summary
+  document += generateComplianceSummary(modules);
+
+  // Add footer
+  document += `
+## Important Notices
+
+### On-Chain Enforcement
+Rules marked with **[ON-CHAIN]** are automatically enforced by the smart contract. These rules cannot be bypassed and provide cryptographic guarantees of compliance.
+
+### Off-Chain Requirements
+Rules marked with **[OFF-CHAIN]** require manual processes, external verification, or cannot be enforced on-chain. These typically include:
+- Regulatory filings and reporting
+- Identity verification processes
+- Ongoing monitoring requirements
+- Business operational requirements
+
+### Hybrid Enforcement
+Rules marked with **[HYBRID]** use both on-chain and off-chain mechanisms. For example:
+- KYC verification (off-chain) that updates on-chain status
+- Geographic restrictions verified off-chain but enforced on-chain
+
+*Generated by Shor Compliance Framework*
+`;
+
+  return document;
+}
+
+function generateEnhancedModuleSection(moduleName: string, moduleData: any): string {
+  let section = `\n## ${formatModuleName(moduleName)}\n\n`;
+
+  switch (moduleName) {
+    case 'token_sale':
+      section += generateEnhancedTokenSaleSection(moduleData);
+      break;
+    case 'investor_verification':
+      section += generateEnhancedInvestorVerificationSection(moduleData);
+      break;
+    case 'securities_exemptions':
+      section += generateEnhancedSecuritiesExemptionsSection(moduleData);
+      break;
+    case 'reporting_requirements':
+      section += generateEnhancedReportingSection(moduleData);
+      break;
+    case 'marketing_restrictions':
+      section += generateEnhancedMarketingSection(moduleData);
+      break;
+    case 'resale_restrictions':
+      section += generateEnhancedResaleSection(moduleData);
+      break;
+    default:
+      section += generateEnhancedGenericSection(moduleName, moduleData);
+  }
+
+  return section;
+}
+
+function generateEnhancedTokenSaleSection(data: any): string {
+  let section = '';
+
+  // Sale period - ON-CHAIN
+  if (data.start_date || data.end_date) {
+    section += `### [ON-CHAIN] Sale Period\n\n`;
+    section += `**Enforcement**: Smart contract automatically blocks contributions outside these dates\n\n`;
+    if (data.start_date) section += `- **Start Date:** ${data.start_date}\n`;
+    if (data.end_date) section += `- **End Date:** ${data.end_date}\n`;
+    section += '\n';
+  }
+
+  // Investment limits - ON-CHAIN
+  section += `### [ON-CHAIN] Investment Parameters\n\n`;
+  section += `**Enforcement**: Smart contract validates all contributions against these limits\n\n`;
+  if (data.max_cap_usd) {
+    section += `- **Maximum Raise:** ${formatCurrency(data.max_cap_usd)}\n`;
+  }
+  if (data.min_investment_usd) {
+    section += `- **Minimum Investment:** ${formatCurrency(data.min_investment_usd)}\n`;
+  }
+  section += '\n';
+
+  // KYC - HYBRID
+  if (data.kyc_threshold_usd !== undefined) {
+    section += `### [HYBRID] KYC Requirements\n\n`;
+    section += `**Enforcement**: Off-chain verification via Sumsub, on-chain status check\n\n`;
+    section += `- **KYC Required:** ${data.kyc_threshold_usd === 0 ? 'For all participants' : `Above ${formatCurrency(data.kyc_threshold_usd)}`}\n`;
+    if (data.aml_required) {
+      section += `- **AML Screening:** Required\n`;
+    }
+    section += '\n';
+  }
+
+  // Geographic restrictions - HYBRID
+  if (data.blocklist || data.whitelist) {
+    section += `### [HYBRID] Geographic Restrictions\n\n`;
+    section += `**Enforcement**: Country verified off-chain during KYC, enforced on-chain\n\n`;
+    if (data.blocklist && data.blocklist.length > 0) {
+      section += `**Prohibited Jurisdictions:**\n`;
+      data.blocklist.forEach((country: string) => {
+        section += `- ${country}\n`;
+      });
+    }
+    if (data.whitelist && data.whitelist.length > 0) {
+      section += `\n**Permitted Jurisdictions:**\n`;
+      data.whitelist.forEach((country: string) => {
+        section += `- ${country}\n`;
+      });
+    }
+    section += '\n';
+  }
+
+  // Accreditation - OFF-CHAIN
+  if (data.accredited_only) {
+    section += `### [OFF-CHAIN] Investor Type\n\n`;
+    section += `**Enforcement**: Manual verification of accredited investor status\n\n`;
+    section += `- **Requirement:** Accredited investors only\n`;
+    section += `- **Verification:** Must provide proof of income/net worth\n\n`;
+  }
+
+  // Disclosures - OFF-CHAIN
+  if (data.required_disclosures) {
+    section += `### [OFF-CHAIN] Required Disclosures\n\n`;
+    section += `**Enforcement**: Must be provided in offering documents\n\n`;
+    data.required_disclosures.forEach((disclosure: string) => {
+      section += `- ${formatFieldName(disclosure)}\n`;
+    });
+    section += '\n';
+  }
+
+  // Lockup - ON-CHAIN
+  if (data.lockup_days) {
+    section += `### [ON-CHAIN] Token Lockup\n\n`;
+    section += `**Enforcement**: Smart contract prevents transfers during lockup period\n\n`;
+    section += `- **Duration:** ${data.lockup_days} days\n`;
+    section += `- **Implementation:** Tokens non-transferable until lockup expires\n\n`;
+  }
+
+  return section;
+}
+
+function generateEnhancedInvestorVerificationSection(data: any): string {
+  let section = '';
+
+  if (data.accredited_verification_required) {
+    section += `### [OFF-CHAIN] Accredited Investor Verification\n\n`;
+    section += `**Enforcement**: Manual review of submitted documents\n\n`;
+    section += `All investors must provide proof of accredited status through:\n\n`;
+    
+    if (data.acceptable_verification_methods) {
+      data.acceptable_verification_methods.forEach((method: string) => {
+        section += `- ${formatFieldName(method)}\n`;
+      });
+    }
+    section += '\n';
+  }
+
+  if (data.bad_actor_check_required) {
+    section += `### [OFF-CHAIN] Bad Actor Checks\n\n`;
+    section += `**Enforcement**: Background checks and database screening\n\n`;
+    section += `- All participants subject to SEC Rule 506(d) disqualification checks\n`;
+    section += `- Includes directors, officers, and 20%+ shareholders\n\n`;
+  }
+
+  return section;
+}
+
+function generateEnhancedSecuritiesExemptionsSection(data: any): string {
+  let section = '';
+
+  section += `### [OFF-CHAIN] Securities Law Compliance\n\n`;
+  section += `**Enforcement**: Legal structuring and regulatory filings\n\n`;
+
+  if (data.primary_exemption) {
+    section += `**Primary Exemption:** ${data.primary_exemption}\n\n`;
+  }
+
+  if (data.alternative_exemptions && data.alternative_exemptions.length > 0) {
+    section += `**Alternative Exemptions Available:**\n`;
+    data.alternative_exemptions.forEach((exemption: string) => {
+      section += `- ${formatFieldName(exemption)}\n`;
+    });
+    section += '\n';
+  }
+
+  return section;
+}
+
+function generateEnhancedReportingSection(data: any): string {
+  let section = '';
+
+  section += `### [OFF-CHAIN] Regulatory Reporting\n\n`;
+  section += `**Enforcement**: Manual filing requirements and deadlines\n\n`;
+
+  if (data.form_d_filing) {
+    section += `**SEC Filings:**\n`;
+    section += `- Form D Required: Yes\n`;
+    if (data.form_d_deadline_days) {
+      section += `- Filing Deadline: Within ${data.form_d_deadline_days} days of first sale\n`;
+    }
+    section += '\n';
+  }
+
+  if (data.ongoing_reporting !== undefined) {
+    section += `**Ongoing Reporting:**\n`;
+    section += `- Periodic Reports: ${data.ongoing_reporting ? 'Required' : 'Not Required'}\n\n`;
+  }
+
+  return section;
+}
+
+function generateEnhancedMarketingSection(data: any): string {
+  let section = '';
+
+  section += `### [OFF-CHAIN] Marketing Compliance\n\n`;
+  section += `**Enforcement**: Manual review of marketing materials\n\n`;
+
+  if (data.general_solicitation_allowed !== undefined) {
+    section += `- **General Solicitation:** ${data.general_solicitation_allowed ? 'Permitted' : 'Prohibited'}\n`;
+  }
+
+  if (data.disclaimer_text) {
+    section += `\n**Required Disclaimer:**\n\n`;
+    section += `> ${data.disclaimer_text}\n\n`;
+  }
+
+  if (data.prohibited_terms && data.prohibited_terms.length > 0) {
+    section += `**Prohibited Terms:**\n`;
+    data.prohibited_terms.forEach((term: string) => {
+      section += `- "${term}"\n`;
+    });
+    section += '\n';
+  }
+
+  return section;
+}
+
+function generateEnhancedResaleSection(data: any): string {
+  let section = '';
+
+  if (data.restricted_period_days) {
+    section += `### [ON-CHAIN] Resale Restrictions\n\n`;
+    section += `**Enforcement**: Smart contract transfer restrictions\n\n`;
+    section += `- **Restricted Period:** ${data.restricted_period_days} days\n`;
+    section += `- **Implementation:** Token transfers blocked during restriction period\n`;
+  }
+  
+  if (data.legend_required || data.transfer_agent_required) {
+    section += `\n### [OFF-CHAIN] Securities Transfer Requirements\n\n`;
+    section += `**Enforcement**: Legal and operational requirements\n\n`;
+    if (data.legend_required) {
+      section += `- **Restrictive Legend:** Required on all certificates\n`;
+    }
+    if (data.transfer_agent_required) {
+      section += `- **Transfer Agent:** Required for share transfers\n`;
+    }
+  }
+
+  section += '\n';
+  return section;
+}
+
+function generateEnhancedGenericSection(moduleName: string, data: any): string {
+  let section = '';
+  
+  // Determine enforcement type based on module name
+  const offChainModules = ['whitepaper_requirements', 'licensing_requirements', 'issuer_requirements', 
+                          'sustainability_requirements', 'ongoing_obligations'];
+  const onChainModules = ['token_parameters', 'transfer_restrictions'];
+  
+  const isOffChain = offChainModules.includes(moduleName);
+  const isOnChain = onChainModules.includes(moduleName);
+  const enforcementType = isOnChain ? '[ON-CHAIN]' : isOffChain ? '[OFF-CHAIN]' : '[HYBRID]';
+  
+  for (const [key, value] of Object.entries(data)) {
+    section += `### ${enforcementType} ${formatFieldName(key)}\n\n`;
+    
+    if (Array.isArray(value)) {
+      value.forEach((item: any) => {
+        section += `- ${item}\n`;
+      });
+    } else if (typeof value === 'object' && value !== null) {
+      for (const [subKey, subValue] of Object.entries(value)) {
+        section += `- **${formatFieldName(subKey)}:** ${subValue}\n`;
+      }
+    } else {
+      section += `${value}\n`;
+    }
+    section += '\n';
+  }
+  
+  return section;
+}
+
+function generateComplianceSummary(modules: any): string {
+  let summary = '\n## Compliance Summary\n\n';
+  
+  let onChainCount = 0;
+  let offChainCount = 0;
+  let hybridCount = 0;
+  
+  // Count enforcement types
+  for (const [moduleName, moduleData] of Object.entries(modules)) {
+    if (moduleName === 'token_sale') {
+      onChainCount += 3; // caps, dates, lockup
+      offChainCount += 2; // disclosures, accreditation
+      hybridCount += 2; // KYC, geographic
+    } else if (moduleName === 'resale_restrictions') {
+      onChainCount += 1;
+      offChainCount += 2;
+    } else if (['reporting_requirements', 'marketing_restrictions', 'securities_exemptions'].includes(moduleName)) {
+      offChainCount += Object.keys(moduleData as any).length;
+    }
+  }
+  
+  summary += `### Enforcement Breakdown\n\n`;
+  summary += `- **[ON-CHAIN] Rules:** ${onChainCount} (Automatically enforced)\n`;
+  summary += `- **[OFF-CHAIN] Rules:** ${offChainCount} (Manual processes required)\n`;
+  summary += `- **[HYBRID] Rules:** ${hybridCount} (Combination of both)\n\n`;
+  
+  summary += `### Key On-Chain Guarantees\n\n`;
+  summary += `The smart contract automatically enforces:\n`;
+  summary += `- Investment caps and limits\n`;
+  summary += `- Time-based restrictions\n`;
+  summary += `- Transfer restrictions and lockups\n`;
+  summary += `- KYC verification status (via oracle)\n\n`;
+  
+  summary += `### Required Off-Chain Processes\n\n`;
+  summary += `Manual compliance required for:\n`;
+  summary += `- Regulatory filings and reporting\n`;
+  summary += `- Investor accreditation verification\n`;
+  summary += `- Marketing material review\n`;
+  summary += `- Ongoing operational compliance\n`;
+  
+  return summary;
+}
+
+// Helper functions
+function formatModuleName(name: string): string {
+  return name
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+function formatFieldName(name: string): string {
+  return name
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0
+  }).format(amount);
 }

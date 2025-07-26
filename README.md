@@ -123,7 +123,17 @@ shor verify status --address 0x123...
 4. Submit PR with references
 
 ## Important Notes
+**⚠️ IMPORTANT LEGAL DISCLAIMER ⚠️**
 
+This repository is currently under legal review. The compliance templates and generated contracts are for reference purposes only and should not be considered legal advice.
+
+**YOU MUST:**
+- Conduct your own legal research
+- Consult with qualified legal counsel
+- Verify all regulatory requirements for your jurisdiction
+- Review and validate all generated contracts before deployment
+
+**Use at your own risk and responsibility.**
 - `compliance.yaml` is YOUR project configuration (gitignored)
 - Jurisdiction templates are read-only references
 - Always review generated contracts with legal counsel
