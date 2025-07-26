@@ -37,6 +37,35 @@ export const deployCommand = new Command('deploy')
 async function deploySolanaProgram(contractPath: string, options: any) {
   console.log(chalk.blue(`Deploying Solana program to ${options.network}...`));
   
+  // Validate Solana wallet configuration
+  const solanaPrivateKey = process.env.SOLANA_PRIVATE_KEY;
+  if (!solanaPrivateKey || solanaPrivateKey.trim() === '') {
+    console.error(chalk.red('❌ Solana wallet private key not found!'));
+    console.log(chalk.yellow('\nTo deploy to Solana, you need to:'));
+    console.log(chalk.gray('1. Add your wallet private key to .env file:'));
+    console.log('   SOLANA_PRIVATE_KEY=your-base58-encoded-private-key');
+    console.log(chalk.gray('\n2. Generate a new wallet if needed:'));
+    console.log('   solana-keygen new --outfile ~/.config/solana/id.json');
+    console.log('   solana-keygen pubkey ~/.config/solana/id.json');
+    console.log(chalk.gray('\n3. Fund your wallet:'));
+    if (options.network === 'devnet') {
+      console.log('   solana airdrop 2 <your-wallet-address> --url devnet');
+    } else if (options.network === 'mainnet') {
+      console.log('   Transfer SOL to your wallet address for deployment fees');
+    }
+    console.log(chalk.gray('\n4. Export private key to .env:'));
+    console.log('   cat ~/.config/solana/id.json');
+    console.log('   # Copy the array of numbers and convert to base58 format');
+    process.exit(1);
+  }
+  
+  // Validate private key format (basic check)
+  if (solanaPrivateKey.length < 40) {
+    console.error(chalk.red('❌ Invalid Solana private key format!'));
+    console.log(chalk.yellow('Private key should be base58-encoded and ~44-88 characters long'));
+    process.exit(1);
+  }
+  
   // Map network names to Solana cluster URLs
   const networkMap: { [key: string]: string } = {
     'localhost': 'http://localhost:8899',
@@ -46,6 +75,9 @@ async function deploySolanaProgram(contractPath: string, options: any) {
   };
   
   const clusterUrl = networkMap[options.network] || options.network;
+  
+  console.log(chalk.green('✓ Solana wallet configured'));
+  console.log(chalk.gray(`Using network: ${clusterUrl}`));
   
   try {
     // Option 1: Try Anchor (recommended for Solana)
@@ -65,6 +97,19 @@ async function deploySolanaProgram(contractPath: string, options: any) {
     const libPath = path.join(programsDir, 'lib.rs');
     fs.copyFileSync(contractPath, libPath);
     
+    // Create wallet keypair file from environment variable
+    const walletPath = path.join(tempDir, 'wallet.json');
+    try {
+      // Convert base58 private key to keypair format
+      const bs58 = require('bs58');
+      const privateKeyBytes = bs58.decode(solanaPrivateKey);
+      fs.writeFileSync(walletPath, JSON.stringify(Array.from(privateKeyBytes)));
+      console.log(chalk.gray(`✓ Created temporary wallet file`));
+    } catch (error) {
+      console.error(chalk.red('❌ Failed to process private key. Ensure it\'s valid base58 format.'));
+      process.exit(1);
+    }
+
     // Create minimal Anchor.toml
     const anchorToml = `[features]
 resolution = true
@@ -78,7 +123,7 @@ url = "https://api.apr.dev"
 
 [provider]
 cluster = "${clusterUrl}"
-wallet = "~/.config/solana/id.json"
+wallet = "${walletPath}"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"`;
@@ -158,6 +203,57 @@ anchor-lang = "0.29.0"`;
 async function deployEthereumContract(contractPath: string, options: any) {
   console.log(chalk.blue(`Deploying Ethereum contract to ${options.network}...`));
   
+  // Validate Ethereum wallet configuration
+  const ethereumPrivateKey = process.env.ETHEREUM_PRIVATE_KEY;
+  if (!ethereumPrivateKey || ethereumPrivateKey.trim() === '') {
+    console.error(chalk.red('❌ Ethereum wallet private key not found!'));
+    console.log(chalk.yellow('\nTo deploy to Ethereum, you need to:'));
+    console.log(chalk.gray('1. Add your wallet private key to .env file:'));
+    console.log('   ETHEREUM_PRIVATE_KEY=0x1234567890abcdef...');
+    console.log(chalk.gray('\n2. Generate a new wallet if needed:'));
+    console.log('   # Using MetaMask: Export private key from account settings');
+    console.log('   # Using CLI: npx ethereum-keygen');
+    console.log(chalk.gray('\n3. Fund your wallet:'));
+    if (options.network === 'localhost') {
+      console.log('   # Use local testnet faucet or test accounts');
+    } else if (options.network === 'goerli' || options.network === 'sepolia') {
+      console.log(`   # Use ${options.network} faucet to get test ETH`);
+      console.log(`   # https://faucet.quicknode.com/${options.network}`);
+    } else if (options.network === 'mainnet') {
+      console.log('   # Transfer ETH to your wallet address for deployment fees');
+      console.log('   # Ensure sufficient ETH for gas costs (~0.01-0.1 ETH typically)');
+    }
+    console.log(chalk.gray('\n4. Security reminder:'));
+    console.log('   # Never commit private keys to version control');
+    console.log('   # Consider using hardware wallets for mainnet deployments');
+    process.exit(1);
+  }
+  
+  // Validate private key format
+  if (!ethereumPrivateKey.startsWith('0x')) {
+    console.error(chalk.red('❌ Invalid Ethereum private key format!'));
+    console.log(chalk.yellow('Private key should start with "0x" and be 64 hex characters long'));
+    console.log(chalk.gray('Example: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'));
+    process.exit(1);
+  }
+  
+  if (ethereumPrivateKey.length !== 66) { // 0x + 64 hex chars
+    console.error(chalk.red('❌ Invalid Ethereum private key length!'));
+    console.log(chalk.yellow('Private key should be exactly 66 characters (0x + 64 hex characters)'));
+    process.exit(1);
+  }
+  
+  // Validate hex format
+  const hexPattern = /^0x[0-9a-fA-F]{64}$/;
+  if (!hexPattern.test(ethereumPrivateKey)) {
+    console.error(chalk.red('❌ Invalid Ethereum private key format!'));
+    console.log(chalk.yellow('Private key should contain only hexadecimal characters (0-9, a-f, A-F)'));
+    process.exit(1);
+  }
+  
+  console.log(chalk.green('✓ Ethereum wallet configured'));
+  console.log(chalk.gray(`Deploying to ${options.network} network`));
+  
   try {
     // Option 1: Try Thirdweb (easiest)
     console.log(chalk.gray('Checking for Thirdweb CLI...'));
@@ -192,14 +288,32 @@ async function deployEthereumContract(contractPath: string, options: any) {
       const deployScript = path.join(__dirname, '../../deploy/deploy-guardrail.js');
       
       if (!fs.existsSync(deployScript)) {
-        // Create simple deployment script inline
+        // Create simple deployment script inline with wallet configuration
         const simpleDeployScript = `
+require('dotenv').config();
+const { ethers } = require('hardhat');
+
 async function main() {
-  const Contract = await ethers.getContractFactory("Guardrail");
+  // Configure wallet from environment variable
+  const privateKey = process.env.ETHEREUM_PRIVATE_KEY;
+  if (!privateKey) {
+    throw new Error('ETHEREUM_PRIVATE_KEY not found in environment variables');
+  }
+  
+  const provider = ethers.provider;
+  const wallet = new ethers.Wallet(privateKey, provider);
+  
+  console.log('Deploying with account:', wallet.address);
+  console.log('Account balance:', (await wallet.getBalance()).toString());
+  
+  const Contract = await ethers.getContractFactory("Guardrail", wallet);
   const contract = await Contract.deploy();
   await contract.deployed();
+  
   console.log("Guardrail deployed to:", contract.address);
+  console.log("Transaction hash:", contract.deployTransaction.hash);
 }
+
 main().catch((error) => {
   console.error(error);
   process.exit(1);
