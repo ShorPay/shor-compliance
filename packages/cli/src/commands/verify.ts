@@ -1,68 +1,118 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
-import { apiClient } from '../services/api-client';
+import { KYCProviderFactory, VerificationStatus, VerificationType } from '@shor/providers';
 
-export const verifyCommand = new Command('verify')
-  .description('Manage KYC/AML verifications through Sumsub');
+export const verifyV2Command = new Command('verify')
+  .description('Manage KYC/AML verifications through configured provider');
 
-verifyCommand
+// Configure provider command
+verifyV2Command
+  .command('configure')
+  .description('Configure KYC provider')
+  .requiredOption('-p, --provider <provider>', 'KYC provider (sumsub)')
+  .action(async (options) => {
+    const factory = KYCProviderFactory;
+    const availableProviders = factory.getAvailableProviders();
+    
+    if (!availableProviders.includes(options.provider)) {
+      console.error(chalk.red(`Invalid provider. Available: ${availableProviders.join(', ')}`));
+      process.exit(1);
+    }
+
+    const requirements = factory.getProviderRequirements(options.provider);
+    console.log(chalk.blue(`Configuring ${options.provider} provider...`));
+    console.log(chalk.gray(`Required configuration: ${requirements.join(', ')}`));
+    
+    // Interactive configuration would go here
+    // For now, show what's needed
+    console.log(chalk.yellow(`\nTo complete configuration, add these to your environment or config:`));
+    requirements.forEach((req: any) => {
+      console.log(chalk.gray(`  ${req.toUpperCase()}: your_${req}_value`));
+    });
+  });
+
+// List providers command  
+verifyV2Command
+  .command('providers')
+  .description('List available KYC providers')
+  .action(async () => {
+    const factory = KYCProviderFactory;
+    const providers = factory.getAvailableProviders();
+    
+    console.log(chalk.bold('Available KYC Providers:\n'));
+    
+    providers.forEach((provider: any) => {
+      const requirements = factory.getProviderRequirements(provider);
+      console.log(chalk.blue(`  ${provider}`));
+      console.log(chalk.gray(`    Configuration: ${requirements.join(', ')}`));
+      console.log();
+    });
+  });
+
+// Initialize verification
+verifyV2Command
   .command('init')
   .description('Initialize a new verification for an address')
-  .requiredOption('-a, --address <address>', 'Ethereum or Solana address to verify')
-  .option('-t, --type <type>', 'Verification type (individual or business)', 'individual')
+  .requiredOption('-a, --address <address>', 'Address to verify (Ethereum or Solana)')
+  .option('-t, --type <type>', 'Verification type (individual|business)', 'individual')
   .option('-l, --level <level>', 'Verification level name', 'basic-kyc')
   .action(async (options) => {
     try {
-      if (!apiClient.isConfigured()) {
-        console.error(chalk.red('Error: API key not configured. Run "shor config set-api-key <key>" first.'));
-        process.exit(1);
-      }
+      const provider = KYCProviderFactory.create('sumsub', {});
+      
+      console.log(chalk.gray(`Initializing verification with ${provider.name} provider...`));
 
-      console.log(chalk.gray('Initializing verification...'));
+      const verificationType = options.type === 'business' 
+        ? VerificationType.BUSINESS 
+        : VerificationType.INDIVIDUAL;
 
-      const result = await apiClient.initVerification({
+      const result = await provider.initVerification({
         address: options.address,
-        verificationType: options.type,
+        verificationType,
         levelName: options.level,
         externalUserId: options.address
       });
 
       console.log(chalk.green('✓ Verification initialized successfully'));
-      console.log(chalk.bold('Applicant ID:'), result.applicantId);
-      console.log(chalk.bold('Verification URL:'), chalk.blue(result.verificationUrl));
-      console.log(chalk.gray('\nShare this URL with the user to complete verification.'));
+      console.log(chalk.bold('Verification ID:'), result.id);
+      console.log(chalk.bold('Provider:'), result.providerData ? provider.name : 'Generic');
+      if (result.verificationUrl) {
+        console.log(chalk.bold('Verification URL:'), chalk.blue(result.verificationUrl));
+        console.log(chalk.gray('\nShare this URL with the user to complete verification.'));
+      }
     } catch (error: any) {
       console.error(chalk.red('Error initializing verification:'), error.message);
+      if (error.message.includes('not configured')) {
+        console.log(chalk.yellow('Run "shor verify configure --provider <provider>" first.'));
+      }
       process.exit(1);
     }
   });
 
-verifyCommand
+// Check status
+verifyV2Command
   .command('status')
   .description('Check verification status for an address')
   .requiredOption('-a, --address <address>', 'Address to check')
   .action(async (options) => {
     try {
-      if (!apiClient.isConfigured()) {
-        console.error(chalk.red('Error: API key not configured. Run "shor config set-api-key <key>" first.'));
-        process.exit(1);
-      }
-
-      const status = await apiClient.getVerificationStatus(options.address);
+      const provider = KYCProviderFactory.create('sumsub', {});
+      const status = await provider.getVerificationStatus(options.address);
 
       console.log(chalk.bold('Verification Status:'));
       console.log(chalk.gray('Address:'), status.address);
+      console.log(chalk.gray('Provider:'), provider.name);
       console.log(chalk.gray('Status:'), getStatusColor(status.status));
+      console.log(chalk.gray('Type:'), status.verificationType);
+      console.log(chalk.gray('ID:'), status.id);
       
-      if (status.reviewResult) {
-        console.log(chalk.gray('Review Result:'), getReviewColor(status.reviewResult.reviewAnswer));
-        if (status.reviewResult.moderationComment) {
-          console.log(chalk.gray('Comment:'), status.reviewResult.moderationComment);
-        }
+      if (status.completedAt) {
+        console.log(chalk.gray('Completed:'), status.completedAt.toLocaleString());
       }
       
-      console.log(chalk.gray('Created:'), new Date(status.createdAt).toLocaleString());
-      console.log(chalk.gray('Updated:'), new Date(status.updatedAt).toLocaleString());
+      console.log(chalk.gray('Created:'), status.createdAt.toLocaleString());
+      console.log(chalk.gray('Updated:'), status.updatedAt.toLocaleString());
+
     } catch (error: any) {
       if (error.response?.status === 404) {
         console.error(chalk.yellow('No verification found for this address.'));
@@ -73,33 +123,29 @@ verifyCommand
     }
   });
 
-verifyCommand
+// List verifications
+verifyV2Command
   .command('list')
   .description('List all verifications')
   .option('-c, --contract <address>', 'Filter by contract address')
   .action(async (options) => {
     try {
-      if (!apiClient.isConfigured()) {
-        console.error(chalk.red('Error: API key not configured. Run "shor config set-api-key <key>" first.'));
-        process.exit(1);
-      }
-
-      const verifications = await apiClient.listVerifications(options.contract);
+      const provider = KYCProviderFactory.create('sumsub', {});
+      const verifications = await provider.listVerifications(options.contract);
 
       if (verifications.length === 0) {
         console.log(chalk.yellow('No verifications found.'));
         return;
       }
 
-      console.log(chalk.bold(`Found ${verifications.length} verification(s):\n`));
+      console.log(chalk.bold(`Found ${verifications.length} verification(s) from ${provider.name}:\n`));
       
-      verifications.forEach((v) => {
+      verifications.forEach((v: any) => {
         console.log(chalk.gray('Address:'), v.address);
         console.log(chalk.gray('Status:'), getStatusColor(v.status));
-        if (v.reviewResult) {
-          console.log(chalk.gray('Result:'), getReviewColor(v.reviewResult.reviewAnswer));
-        }
-        console.log(chalk.gray('Updated:'), new Date(v.updatedAt).toLocaleString());
+        console.log(chalk.gray('Type:'), v.verificationType);
+        console.log(chalk.gray('ID:'), v.id);
+        console.log(chalk.gray('Updated:'), v.updatedAt.toLocaleString());
         console.log(chalk.gray('---'));
       });
     } catch (error: any) {
@@ -108,50 +154,38 @@ verifyCommand
     }
   });
 
-verifyCommand
+// Get proof
+verifyV2Command
   .command('proof')
   .description('Get cryptographic proof of verification')
   .requiredOption('-a, --address <address>', 'Address to get proof for')
   .action(async (options) => {
     try {
-      if (!apiClient.isConfigured()) {
-        console.error(chalk.red('Error: API key not configured. Run "shor config set-api-key <key>" first.'));
-        process.exit(1);
-      }
-
-      const proof = await apiClient.getVerificationProof(options.address);
+      const provider = KYCProviderFactory.create('sumsub', {});
+      const proof = await provider.getVerificationProof(options.address);
 
       console.log(chalk.bold('Verification Proof:'));
       console.log(JSON.stringify(proof, null, 2));
-      console.log(chalk.gray('\nThis proof can be used to verify the status on-chain.'));
+      console.log(chalk.gray(`\nThis proof from ${proof.providerName} can be used to verify status on-chain.`));
     } catch (error: any) {
       console.error(chalk.red('Error getting proof:'), error.message);
       process.exit(1);
     }
   });
 
-function getStatusColor(status: string): string {
+function getStatusColor(status: VerificationStatus): string {
   switch (status) {
-    case 'completed':
-      return chalk.green(status);
-    case 'processing':
-      return chalk.yellow(status);
-    case 'rejected':
-      return chalk.red(status);
+    case VerificationStatus.APPROVED:
+      return chalk.green('✓ Approved');
+    case VerificationStatus.IN_PROGRESS:
+      return chalk.yellow('⏳ In Progress');
+    case VerificationStatus.NEEDS_REVIEW:
+      return chalk.yellow('⚠ Needs Review');
+    case VerificationStatus.REJECTED:
+      return chalk.red('✗ Rejected');
+    case VerificationStatus.PENDING:
+      return chalk.gray('⏸ Pending');
     default:
       return chalk.gray(status);
-  }
-}
-
-function getReviewColor(answer: string): string {
-  switch (answer) {
-    case 'GREEN':
-      return chalk.green('✓ Approved');
-    case 'YELLOW':
-      return chalk.yellow('⚠ Needs Review');
-    case 'RED':
-      return chalk.red('✗ Rejected');
-    default:
-      return answer;
   }
 }

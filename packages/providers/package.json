@@ -1,0 +1,37 @@
+{
+  "name": "@shor/providers",
+  "version": "1.0.0",
+  "description": "KYC/AML provider integrations for Shor Compliance Framework",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "test": "jest"
+  },
+  "dependencies": {
+    "axios": "^1.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.5.3"
+  },
+  "keywords": [
+    "kyc",
+    "aml",
+    "compliance",
+    "sumsub",
+    "verification"
+  ],
+  "author": "Shor Protocol",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shor-protocol/compliance-framework",
+    "directory": "packages/providers"
+  }
+}

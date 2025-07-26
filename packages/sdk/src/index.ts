@@ -1,13 +1,13 @@
 import { ComplianceSpec, Blockchain, Environment, KYCProvider, KYCProviderConfig } from './types';
 import { CodeGenerator, DocumentGenerator, GeneratorOptions } from './generators/base';
 import { JurisdictionLoader } from './jurisdictions/loader';
-import { KYCProviderFactory } from './providers/factory';
+import { KYCProviderFactory } from '@shor/providers';
 import { validateComplianceSpec } from './utils/validation';
 import { GeneratorFactory } from './generators/factory';
 
 export * from './types';
 export * from './generators/base';
-export * from './providers/base';
+export { KYCProvider, KYCProviderConfig } from '@shor/providers';
 
 /**
  * Main SDK configuration
