@@ -103,21 +103,37 @@ async function deploySolanaProgram(contractPath: string, options: any) {
     try {
       // Convert base58 private key to keypair format
       const bs58 = require('bs58');
-      const privateKeyBytes = bs58.decode(solanaPrivateKey);
+      const privateKeyBytes = bs58.default ? bs58.default.decode(solanaPrivateKey) : bs58.decode(solanaPrivateKey);
       fs.writeFileSync(walletPath, JSON.stringify(Array.from(privateKeyBytes)));
       console.log(chalk.gray(`✓ Created temporary wallet file`));
     } catch (error) {
       console.error(chalk.red('❌ Failed to process private key. Ensure it\'s valid base58 format.'));
+      console.error(chalk.gray(`Error details: ${error instanceof Error ? error.message : String(error)}`));
       process.exit(1);
     }
 
-    // Create minimal Anchor.toml
-    const anchorToml = `[features]
+    // Generate a valid program ID (placeholder - Anchor will generate the real one)
+    const programId = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"; // Valid base58 placeholder
+    
+    // Create minimal Anchor.toml with version matching
+    const anchorToml = `[toolchain]
+anchor_version = "0.31.1"
+
+[features]
 resolution = true
 skip-lint = false
 
-[programs.${options.network}]
-guardrail = "GuardrailProgram111111111111111111111111111"
+[programs.localnet]
+guardrail = "${programId}"
+
+[programs.devnet]
+guardrail = "${programId}"
+
+[programs.testnet]
+guardrail = "${programId}"
+
+[programs.mainnet]
+guardrail = "${programId}"
 
 [registry]
 url = "https://api.apr.dev"
@@ -143,25 +159,33 @@ crate-type = ["cdylib", "lib"]
 name = "guardrail"
 
 [dependencies]
-anchor-lang = "0.29.0"`;
+anchor-lang = "0.31.1"`;
     
     fs.writeFileSync(path.join(tempDir, 'programs', 'guardrail', 'Cargo.toml'), cargoToml);
     
     console.log(chalk.gray(`Building program...`));
+    const originalDir = process.cwd();
     process.chdir(tempDir);
     
-    const { stdout: buildOutput } = await execAsync('anchor build');
-    console.log(buildOutput);
-    
-    console.log(chalk.gray(`Deploying to ${options.network}...`));
-    const { stdout: deployOutput } = await execAsync(`anchor deploy --provider.cluster ${options.network}`);
-    console.log(deployOutput);
-    
-    // Clean up
-    process.chdir('..');
-    fs.rmSync(tempDir, { recursive: true, force: true });
-    
-    console.log(chalk.green('✅ Solana program deployed successfully!'));
+    try {
+      const { stdout: buildOutput } = await execAsync('anchor build');
+      console.log(buildOutput);
+      
+      console.log(chalk.gray(`Deploying to ${options.network}...`));
+      const { stdout: deployOutput } = await execAsync(`anchor deploy --provider.cluster ${options.network}`);
+      console.log(deployOutput);
+      
+      console.log(chalk.green('✅ Solana program deployed successfully!'));
+      
+    } catch (deployError) {
+      console.error(chalk.red('❌ Deployment failed'));
+      console.error(chalk.gray(`Error: ${deployError instanceof Error ? deployError.message : String(deployError)}`));
+      throw deployError;
+    } finally {
+      // Always clean up and restore directory
+      process.chdir(originalDir);
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
     
   } catch (anchorError) {
     // Option 2: Try Solana CLI
@@ -175,9 +199,10 @@ anchor-lang = "0.29.0"`;
       
       await autoInstallAnchor();
       
-      // Retry with Anchor after installation
-      console.log(chalk.green('✓ Anchor installed, retrying deployment...'));
-      return await deploySolanaProgram(contractPath, options);
+      // Don't recursively retry - the issue is likely with the deployment itself
+      console.log(chalk.red('❌ Deployment failed even with Anchor installed.'));
+      console.log(chalk.yellow('The error is likely with the build/deploy process, not missing tools.'));
+      throw anchorError;
       
     } catch (solanaError) {
       // Option 3: Auto-install both Solana CLI and Anchor
@@ -186,9 +211,10 @@ anchor-lang = "0.29.0"`;
       
       await autoInstallSolanaTools();
       
-      // Retry deployment after installation
-      console.log(chalk.green('✅ Solana tools installed, retrying deployment...'));
-      return await deploySolanaProgram(contractPath, options);
+      // Don't recursively retry - show error instead
+      console.log(chalk.red('❌ Deployment failed even after installing Solana tools.'));
+      console.log(chalk.yellow('The error is likely with the build/deploy process, not missing tools.'));
+      throw anchorError;
     }
   }
 }

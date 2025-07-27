@@ -17,7 +17,7 @@ export function generateSolanaProgram(complianceData: any): string {
   return `use anchor_lang::prelude::*;
 use anchor_lang::solana_program::clock::Clock;
 
-declare_id!("GuardrailProgram111111111111111111111111111");
+declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 /// Auto-generated from compliance.yaml specification
 #[program]
