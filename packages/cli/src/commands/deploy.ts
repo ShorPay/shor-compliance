@@ -82,9 +82,10 @@ async function deploySolanaProgram(contractPath: string, options: any) {
   try {
     // Option 1: Try Anchor (recommended for Solana)
     console.log(chalk.gray('Checking for Anchor CLI...'));
-    await execAsync('anchor --version');
+    const anchorVersion = await execAsync('anchor --version');
     
-    console.log(chalk.green('✓ Using Anchor for deployment'));
+    console.log(chalk.green('✓ Anchor found, using for deployment'));
+    console.log(chalk.gray(`  Version: ${anchorVersion.stdout.trim()}`));
     
     // Create temporary Anchor project structure
     const tempDir = path.join(process.cwd(), '.temp-anchor-deploy');
@@ -166,36 +167,28 @@ anchor-lang = "0.29.0"`;
     // Option 2: Try Solana CLI
     try {
       console.log(chalk.gray('Checking for Solana CLI...'));
-      await execAsync('solana --version');
+      const solanaVersion = await execAsync('solana --version');
       
-      console.log(chalk.yellow('⚠️  Anchor not found, but Solana CLI is available'));
-      console.log(chalk.white('\nTo deploy with Solana CLI, you need to:'));
-      console.log(chalk.gray('1. Set up an Anchor project:'));
-      console.log('   anchor init my-project');
-      console.log(`   cp ${contractPath} my-project/programs/my-project/src/lib.rs`);
-      console.log('   cd my-project');
-      console.log('   anchor build');
-      console.log(`   anchor deploy --provider.cluster ${options.network}`);
+      console.log(chalk.green('✓ Solana CLI found'));
+      console.log(chalk.gray(`  Version: ${solanaVersion.stdout.trim()}`));
+      console.log(chalk.yellow('⚠️  Anchor not found, installing...'));
+      
+      await autoInstallAnchor();
+      
+      // Retry with Anchor after installation
+      console.log(chalk.green('✓ Anchor installed, retrying deployment...'));
+      return await deploySolanaProgram(contractPath, options);
       
     } catch (solanaError) {
-      // Option 3: Provide manual installation instructions
+      // Option 3: Auto-install both Solana CLI and Anchor
       console.log(chalk.yellow('\n⚠️  No Solana deployment tools found'));
-      console.log(chalk.white('\nTo deploy your Solana program, install the required tools:'));
+      console.log(chalk.blue('🔧 Installing Solana tools automatically...\n'));
       
-      console.log(chalk.gray('\n1. Install Solana CLI:'));
-      console.log('   sh -c "$(curl -sSfL https://release.solana.com/stable/install)"');
+      await autoInstallSolanaTools();
       
-      console.log(chalk.gray('\n2. Install Anchor:'));
-      console.log('   cargo install --git https://github.com/coral-xyz/anchor avm --locked --force');
-      console.log('   avm install latest');
-      console.log('   avm use latest');
-      
-      console.log(chalk.gray('\n3. Set up wallet and deploy:'));
-      console.log('   solana-keygen new');
-      console.log(`   solana config set --url ${clusterUrl}`);
-      console.log('   anchor init my-project');
-      console.log(`   cp ${contractPath} my-project/programs/my-project/src/lib.rs`);
-      console.log('   cd my-project && anchor build && anchor deploy');
+      // Retry deployment after installation
+      console.log(chalk.green('✅ Solana tools installed, retrying deployment...'));
+      return await deploySolanaProgram(contractPath, options);
     }
   }
 }
@@ -347,5 +340,115 @@ main().catch((error) => {
       console.log('   npm install --save-dev hardhat @nomiclabs/hardhat-ethers');
       console.log(`   npx hardhat run deploy/deploy-guardrail.js --network ${options.network}`);
     }
+  }
+}
+
+async function autoInstallSolanaTools() {
+  const os = process.platform;
+  const homeDir = require('os').homedir();
+  
+  try {
+    // Check if Solana CLI is already installed
+    try {
+      const solanaVersion = await execAsync('solana --version');
+      console.log(chalk.green('✓ Solana CLI already installed'));
+      console.log(chalk.gray(`  Version: ${solanaVersion.stdout.trim()}`));
+    } catch {
+      console.log(chalk.gray('📦 Installing Solana CLI...'));
+      
+      if (os === 'darwin' || os === 'linux') {
+        // Install Solana CLI
+        await execAsync('sh -c "$(curl -sSfL https://release.solana.com/stable/install)"', { timeout: 300000 });
+        
+        // Add to PATH
+        const solanaPath = `${homeDir}/.local/share/solana/install/active_release/bin`;
+        process.env.PATH = `${solanaPath}:${process.env.PATH}`;
+        
+        console.log(chalk.green('✓ Solana CLI installed'));
+        
+        // Verify installation
+        const newVersion = await execAsync('solana --version');
+        console.log(chalk.gray(`  Version: ${newVersion.stdout.trim()}`));
+        
+      } else if (os === 'win32') {
+        console.log(chalk.yellow('⚠️  Windows detected. Please install manually:'));
+        console.log('1. Download from: https://github.com/solana-labs/solana/releases');
+        console.log('2. Or use: winget install Solana.SolanaCLI');
+        throw new Error('Manual installation required on Windows');
+      }
+    }
+    
+    // Check if Rust is installed (required for Anchor)
+    try {
+      const rustVersion = await execAsync('cargo --version');
+      console.log(chalk.green('✓ Rust already installed'));
+      console.log(chalk.gray(`  Version: ${rustVersion.stdout.trim()}`));
+    } catch {
+      console.log(chalk.gray('📦 Installing Rust...'));
+      await execAsync('curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y', { timeout: 600000 });
+      
+      // Source cargo env
+      const cargoPath = `${homeDir}/.cargo/bin`;
+      process.env.PATH = `${cargoPath}:${process.env.PATH}`;
+      
+      const newRustVersion = await execAsync('cargo --version');
+      console.log(chalk.green('✓ Rust installed'));
+      console.log(chalk.gray(`  Version: ${newRustVersion.stdout.trim()}`));
+    }
+    
+    // Install Anchor (this function has its own checks)
+    await autoInstallAnchor();
+    
+  } catch (error) {
+    console.error(chalk.red('❌ Failed to auto-install Solana tools'));
+    console.log(chalk.yellow('\nPlease install manually:'));
+    console.log(chalk.gray('1. Solana CLI: sh -c "$(curl -sSfL https://release.solana.com/stable/install)"'));
+    console.log(chalk.gray('2. Rust: curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh'));
+    console.log(chalk.gray('3. Anchor: cargo install --git https://github.com/coral-xyz/anchor avm --locked --force'));
+    throw error;
+  }
+}
+
+async function autoInstallAnchor() {
+  try {
+    // Check if Anchor is already installed
+    try {
+      const anchorVersion = await execAsync('anchor --version');
+      console.log(chalk.green('✓ Anchor already installed'));
+      console.log(chalk.gray(`  Version: ${anchorVersion.stdout.trim()}`));
+      return; // Skip installation if already present
+    } catch {
+      // Anchor not found, proceed with installation
+    }
+    
+    console.log(chalk.gray('📦 Installing Anchor (this may take 5-10 minutes)...'));
+    
+    // Check if AVM is already installed
+    try {
+      await execAsync('avm --version');
+      console.log(chalk.green('✓ AVM already installed'));
+    } catch {
+      // Install AVM (Anchor Version Manager)
+      console.log(chalk.gray('  Installing AVM...'));
+      await execAsync('cargo install --git https://github.com/coral-xyz/anchor avm --locked --force', { timeout: 600000 });
+      console.log(chalk.green('✓ AVM installed'));
+    }
+    
+    // Install latest Anchor
+    console.log(chalk.gray('  Installing latest Anchor version...'));
+    await execAsync('avm install latest', { timeout: 600000 });
+    await execAsync('avm use latest', { timeout: 60000 });
+    
+    // Verify installation
+    const finalVersion = await execAsync('anchor --version');
+    console.log(chalk.green('✓ Anchor installed'));
+    console.log(chalk.gray(`  Version: ${finalVersion.stdout.trim()}`));
+    
+  } catch (error) {
+    console.error(chalk.red('❌ Failed to install Anchor'));
+    console.log(chalk.yellow('Please install manually:'));
+    console.log('  cargo install --git https://github.com/coral-xyz/anchor avm --locked --force');
+    console.log('  avm install latest && avm use latest');
+    throw error;
   }
 }
